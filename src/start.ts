@@ -1,3 +1,3 @@
 export{}
 
-let str  = "hfaksdh lfja "; 
+let str  = "sd a "; 
