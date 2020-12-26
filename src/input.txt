@@ -1,1 +1,11 @@
-hello from hell
+A,3,3,CD
+B,5,2,G
+C,6,3,I
+D,2,4,EF
+E,3,2,J
+F,3,1,H
+G,4,3,H
+H,5,2,
+I,4,3,J
+J,2,4,K
+K,3,5,

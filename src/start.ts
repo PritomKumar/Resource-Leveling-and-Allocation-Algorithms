@@ -6,7 +6,7 @@ class Activity {
     description: string = "";
     resource: number = 0;
     duration: number = 0;
-    
+
     //Has to solve activity issue
     //prevActivity:Activity = new Activity();
     //nextActivity: Array<Activity> = [];
@@ -31,6 +31,8 @@ try {
     // var data = fs.readFileSync("F:\\IIT 8th Semester\\Software Project Management\\Group Assingments\\Project 1\\src\\input.txt", 'utf8');
     var data = fs.readFileSync("src\\input.txt", "utf8");
     console.log(data);
+    
+
 } catch (e) {
     console.log("Error:", e.stack);
 }
