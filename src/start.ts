@@ -6,6 +6,7 @@ class Activity {
     description: string = "";
     resource: number = 0;
     duration: number = 0;
+    
     //Has to solve activity issue
     //prevActivity:Activity = new Activity();
     //nextActivity: Array<Activity> = [];
