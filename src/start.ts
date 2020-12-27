@@ -29,6 +29,8 @@ class Activity {
     //nextActivity: Array<Activity> = [];
     prevActivity: string = "START";
     nextActivity: Array<string> = ["END"];
+    currentStart: number = 0;
+    currentFinish: number = 0;
     earlyStart: number = 0;
     earlyFinish: number = 0;
     lateStart: number = 0;

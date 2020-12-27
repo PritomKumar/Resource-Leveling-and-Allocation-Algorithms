@@ -47,6 +47,8 @@ class Activity {
         //nextActivity: Array<Activity> = [];
         this.prevActivity = "START";
         this.nextActivity = ["END"];
+        this.currentStart = 0;
+        this.currentFinish = 0;
         this.earlyStart = 0;
         this.earlyFinish = 0;
         this.lateStart = 0;
