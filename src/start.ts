@@ -1,5 +1,6 @@
 export {};
 import fs from "fs";
+import { updateBreak } from "typescript";
 
 const readline = require("readline");
 var allActivitys = new Array<Activity>();
@@ -117,7 +118,7 @@ function stringToNumberConverter(str: string): number {
         case "A":
             num = start + 1;
             break;
-        case "B ":
+        case "B":
             num = start + 2;
             break;
         case "C":
@@ -260,11 +261,23 @@ async function findFloatActivities() {
 }
 
 function findLatestActivity(): number {
-    var largestEarlyFinish: number = 0;
+    var largestEarlyFinish: number = -10;
     var largestEarlyFinisherActivity: Activity;
-    var index: number = 0;
+    var index: number = -1;
+    console.log("All floats ");
+    // console.log(floatActivitys);
+    // for (var i: number = 0; i < floatActivitys.length; i++) {
+    //     if (
+    //         floatActivitys[i].currentFinish != -1 &&
+    //         floatActivitys[i].currentFinish > largestEarlyFinish
+    //     ) {
+    //     }
+    // }
     for (var i: number = 0; i < floatActivitys.length; i++) {
-        if (floatActivitys[i].currentFinish > largestEarlyFinish) {
+        if (
+            floatActivitys[i].currentFinish != -1 &&
+            floatActivitys[i].currentFinish > largestEarlyFinish
+        ) {
             largestEarlyFinish = floatActivitys[i].currentFinish;
             index = i;
             largestEarlyFinisherActivity = floatActivitys[i];
@@ -272,12 +285,18 @@ function findLatestActivity(): number {
             largestEarlyFinisherActivity = floatActivitys[i];
             if (
                 largestEarlyFinisherActivity.resource <
-                floatActivitys[i].currentFinish
+                floatActivitys[i].resource
             ) {
                 largestEarlyFinisherActivity = floatActivitys[i];
                 largestEarlyFinish = floatActivitys[i].currentFinish;
                 index = i;
+            } else {
+                largestEarlyFinish = largestEarlyFinisherActivity.currentFinish;
+                index = i;
             }
+        } else {
+            //largestEarlyFinish = largestEarlyFinish;
+            //index = i;
         }
     }
     return index;
@@ -300,8 +319,8 @@ function calculateFloatSpace(latestActivity: Activity): number {
     var originalActivityIndex: number = stringToNumberConverter(
         latestActivity.name
     );
-    console.log("calculateFloatSpace   " );
-    console.log(latestActivity);
+    // console.log("calculateFloatSpace   ");
+    // console.log(latestActivity);
 
     for (var i: number = 1; i < activityCount - 1; i++) {
         if (
@@ -313,29 +332,46 @@ function calculateFloatSpace(latestActivity: Activity): number {
                 allActivitys[i].currentStart - latestActivity.currentFinish
             );
             console.log("lala   " + floatSpace);
-           // console.log(allActivitys[i]);
+            // console.log(allActivitys[i]);
         }
     }
     console.log("final = " + floatSpace);
     return floatSpace;
 }
 
+function countAvailableFloat(): number {
+    var count: number = 0;
+    for (var i: number = 0; i < floatActivitys.length; i++) {
+        if (floatActivitys[i].currentFinish != -1) {
+            count += 1;
+        }
+    }
+
+    return count;
+}
 async function burgessResourceLeveling() {
     for (var k: number = 0; k < floatActivitys.length; k++) {
+        console.log("count = ");
+        console.log(countAvailableFloat());
+        if (countAvailableFloat() == 0) {
+            break;
+        }
         var initialRsquare: number = Infinity;
         var calculatedRsquare: number = 0;
         var position: number = 0;
 
         var latestActivityIndex: number = findLatestActivity();
+        //console.log("latestActivityIndex = " + latestActivityIndex);
         var latestActivity = floatActivitys[latestActivityIndex];
         var originalActivityIndex: number = stringToNumberConverter(
             latestActivity.name
         );
+        console.log("originalActivityIndex = " + originalActivityIndex);
+
         var originalActivity = { ...allActivitys[originalActivityIndex] };
+        console.log("original ");
         console.log(originalActivity);
-        var floatSpace: number =  calculateFloatSpace(
-            originalActivity
-        );
+        var floatSpace: number = calculateFloatSpace(originalActivity);
         for (var i: number = 1; i <= floatSpace; i++) {
             allActivitys[originalActivityIndex].currentStart =
                 originalActivity.currentStart + i;

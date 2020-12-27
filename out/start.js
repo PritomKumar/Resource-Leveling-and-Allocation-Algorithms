@@ -130,7 +130,7 @@ function stringToNumberConverter(str) {
         case "A":
             num = start + 1;
             break;
-        case "B ":
+        case "B":
             num = start + 2;
             break;
         case "C":
@@ -267,11 +267,21 @@ function findFloatActivities() {
     });
 }
 function findLatestActivity() {
-    var largestEarlyFinish = 0;
+    var largestEarlyFinish = -10;
     var largestEarlyFinisherActivity;
-    var index = 0;
+    var index = -1;
+    console.log("All floats ");
+    // console.log(floatActivitys);
+    // for (var i: number = 0; i < floatActivitys.length; i++) {
+    //     if (
+    //         floatActivitys[i].currentFinish != -1 &&
+    //         floatActivitys[i].currentFinish > largestEarlyFinish
+    //     ) {
+    //     }
+    // }
     for (var i = 0; i < floatActivitys.length; i++) {
-        if (floatActivitys[i].currentFinish > largestEarlyFinish) {
+        if (floatActivitys[i].currentFinish != -1 &&
+            floatActivitys[i].currentFinish > largestEarlyFinish) {
             largestEarlyFinish = floatActivitys[i].currentFinish;
             index = i;
             largestEarlyFinisherActivity = floatActivitys[i];
@@ -279,11 +289,19 @@ function findLatestActivity() {
         else if (floatActivitys[i].currentFinish == largestEarlyFinish) {
             largestEarlyFinisherActivity = floatActivitys[i];
             if (largestEarlyFinisherActivity.resource <
-                floatActivitys[i].currentFinish) {
+                floatActivitys[i].resource) {
                 largestEarlyFinisherActivity = floatActivitys[i];
                 largestEarlyFinish = floatActivitys[i].currentFinish;
                 index = i;
             }
+            else {
+                largestEarlyFinish = largestEarlyFinisherActivity.currentFinish;
+                index = i;
+            }
+        }
+        else {
+            //largestEarlyFinish = largestEarlyFinish;
+            //index = i;
         }
     }
     return index;
@@ -299,8 +317,8 @@ function checkIfActivityIsInFloatActivities(relatedActivity) {
 function calculateFloatSpace(latestActivity) {
     var floatSpace = latestActivity.totalFloat;
     var originalActivityIndex = stringToNumberConverter(latestActivity.name);
-    console.log("calculateFloatSpace   ");
-    console.log(latestActivity);
+    // console.log("calculateFloatSpace   ");
+    // console.log(latestActivity);
     for (var i = 1; i < activityCount - 1; i++) {
         if (relationMatrix[originalActivityIndex][i] == 1 &&
             checkIfActivityIsInFloatActivities(allActivitys[i])) {
@@ -312,16 +330,33 @@ function calculateFloatSpace(latestActivity) {
     console.log("final = " + floatSpace);
     return floatSpace;
 }
+function countAvailableFloat() {
+    var count = 0;
+    for (var i = 0; i < floatActivitys.length; i++) {
+        if (floatActivitys[i].currentFinish != -1) {
+            count += 1;
+        }
+    }
+    return count;
+}
 function burgessResourceLeveling() {
     return __awaiter(this, void 0, void 0, function* () {
         for (var k = 0; k < floatActivitys.length; k++) {
+            console.log("count = ");
+            console.log(countAvailableFloat());
+            if (countAvailableFloat() == 0) {
+                break;
+            }
             var initialRsquare = Infinity;
             var calculatedRsquare = 0;
             var position = 0;
             var latestActivityIndex = findLatestActivity();
+            //console.log("latestActivityIndex = " + latestActivityIndex);
             var latestActivity = floatActivitys[latestActivityIndex];
             var originalActivityIndex = stringToNumberConverter(latestActivity.name);
+            console.log("originalActivityIndex = " + originalActivityIndex);
             var originalActivity = Object.assign({}, allActivitys[originalActivityIndex]);
+            console.log("original ");
             console.log(originalActivity);
             var floatSpace = calculateFloatSpace(originalActivity);
             for (var i = 1; i <= floatSpace; i++) {
