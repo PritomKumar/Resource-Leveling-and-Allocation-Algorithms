@@ -36,6 +36,7 @@ var allActivitys = new Array();
 // ];
 var relationMatrix = [[]];
 var activityCount = 0;
+var totalDays = 0;
 class Activity {
     constructor(name = "", duration = 0, resource = 0, nextActivity = ["END"]) {
         this.name = "";
@@ -214,6 +215,13 @@ function calculateLSAndLF() {
         allActivitys[i].lateStart = lateStart;
         allActivitys[i].lateFinish = lateFinish;
     }
+    totalDays = allActivitys[lastActivity].earlyFinish;
+}
+function calculateFloat() {
+    for (var i = 0; i < activityCount - 1; i++) {
+        allActivitys[i].totalFloat =
+            allActivitys[i].lateStart - allActivitys[i].earlyStart;
+    }
 }
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -223,6 +231,7 @@ function main() {
         //console.log(relationMatrix);
         calculateESAndEF();
         calculateLSAndLF();
+        calculateFloat();
         console.log(allActivitys);
     });
 }

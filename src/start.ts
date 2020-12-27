@@ -18,6 +18,7 @@ var allActivitys = new Array<Activity>();
 
 var relationMatrix: Array<Array<number>> = [[]];
 var activityCount: number = 0;
+var totalDays: number = 0;
 
 class Activity {
     name: string = "";
@@ -210,6 +211,14 @@ function calculateLSAndLF() {
         allActivitys[i].lateStart = lateStart;
         allActivitys[i].lateFinish = lateFinish;
     }
+    totalDays = allActivitys[lastActivity].earlyFinish;
+}
+
+function calculateFloat() {
+    for (var i: number = 0; i < activityCount - 1; i++) {
+        allActivitys[i].totalFloat =
+            allActivitys[i].lateStart - allActivitys[i].earlyStart;
+    }
 }
 
 async function main() {
@@ -219,6 +228,7 @@ async function main() {
     //console.log(relationMatrix);
     calculateESAndEF();
     calculateLSAndLF();
+    calculateFloat();
     console.log(allActivitys);
 }
 
