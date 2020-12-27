@@ -22,6 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const readline = require("readline");
 var allActivitys = new Array();
+var floatActivitys = new Array();
 // var relationMatrix: Array<Array<number>>  = [
 //     [0,0,0,0,0,0,0,0,0,0],
 //     [0,0,0,0,0,0,0,0,0,0],
@@ -255,6 +256,15 @@ function calcucateRSquare() {
     }
     return rSquareTotal;
 }
+function findFloatActivities() {
+    return __awaiter(this, void 0, void 0, function* () {
+        for (var i = 1; i < activityCount - 1; i++) {
+            if (allActivitys[i].totalFloat > 0) {
+                floatActivitys.push(allActivitys[i]);
+            }
+        }
+    });
+}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield processInputLineByLine();
@@ -264,10 +274,12 @@ function main() {
         yield calculateESAndEF();
         yield calculateLSAndLF();
         yield calculateFloat();
+        // console.log(allActivitys);
         yield initializeCurrentStartAndFinish();
-        var ds = calcucateRSquare();
-        console.log(ds);
-        //console.log(allActivitys);
+        var rSquare = calcucateRSquare();
+        //console.log(rSquare);
+        findFloatActivities();
+        console.log(floatActivitys);
     });
 }
 main();

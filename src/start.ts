@@ -3,6 +3,7 @@ import fs from "fs";
 
 const readline = require("readline");
 var allActivitys = new Array<Activity>();
+var floatActivitys = new Array<Activity>();
 // var relationMatrix: Array<Array<number>>  = [
 //     [0,0,0,0,0,0,0,0,0,0],
 //     [0,0,0,0,0,0,0,0,0,0],
@@ -238,7 +239,6 @@ function calcucateRSquare(): number {
                 allActivitys[j].currentStart < i &&
                 allActivitys[j].currentFinish >= i
             ) {
-                
                 r += allActivitys[j].resource;
                 //console.log( r + " +  ");
             }
@@ -250,6 +250,14 @@ function calcucateRSquare(): number {
     return rSquareTotal;
 }
 
+async function findFloatActivities() {
+    for (var i: number = 1; i < activityCount - 1; i++) {
+        if (allActivitys[i].totalFloat > 0) {
+            floatActivitys.push(allActivitys[i]);
+        }
+    }
+}
+
 async function main() {
     await processInputLineByLine();
     initializeRelationMatrix();
@@ -258,10 +266,12 @@ async function main() {
     await calculateESAndEF();
     await calculateLSAndLF();
     await calculateFloat();
+    // console.log(allActivitys);
     await initializeCurrentStartAndFinish();
-    var ds = calcucateRSquare();
-    console.log(ds);
-    //console.log(allActivitys);
+    var rSquare = calcucateRSquare();
+    //console.log(rSquare);
+    findFloatActivities();
+    console.log(floatActivitys);
 }
 
 main();
