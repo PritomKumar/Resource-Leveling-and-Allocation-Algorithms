@@ -37,7 +37,7 @@ var allActivitys = new Array();
 var relationMatrix = [[]];
 var activityCount = 0;
 class Activity {
-    constructor(name = "", resource = 0, duration = 0, nextActivity = ["end"]) {
+    constructor(name = "", resource = 0, duration = 0, nextActivity = ["END"]) {
         this.name = "";
         this.description = "";
         this.resource = 0;
@@ -45,8 +45,8 @@ class Activity {
         //Has to solve activity issue
         //prevActivity:Activity = new Activity();
         //nextActivity: Array<Activity> = [];
-        this.prevActivity = "start";
-        this.nextActivity = ["end"];
+        this.prevActivity = "START";
+        this.nextActivity = ["END"];
         this.earlyStart = 0;
         this.earlyFinish = 0;
         this.lateStart = 0;
@@ -55,8 +55,8 @@ class Activity {
         this.name = name.toUpperCase();
         this.duration = duration;
         this.resource = resource;
-        if (nextActivity.length == 1 && nextActivity[0] == '') {
-            this.nextActivity = ["end"];
+        if (nextActivity.length == 1 && nextActivity[0] == "") {
+            this.nextActivity = ["END"];
         }
         else {
             this.nextActivity = nextActivity;
@@ -73,6 +73,8 @@ function processLineByLine() {
                 input: fileStream,
                 crlfDelay: Infinity,
             });
+            var startActivity = new Activity("START", 0, 0, ['']);
+            allActivitys.push(startActivity);
             try {
                 for (var rl_1 = __asyncValues(rl), rl_1_1; rl_1_1 = yield rl_1.next(), !rl_1_1.done;) {
                     const line = rl_1_1.value;
@@ -93,6 +95,9 @@ function processLineByLine() {
                 }
                 finally { if (e_1) throw e_1.error; }
             }
+            var endActivity = new Activity("END", 0, 0, ['']);
+            allActivitys.push(endActivity);
+            activityCount += 2;
             //console.log(data);
         }
         catch (e) {

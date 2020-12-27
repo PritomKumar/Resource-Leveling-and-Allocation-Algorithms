@@ -27,8 +27,8 @@ class Activity {
     //Has to solve activity issue
     //prevActivity:Activity = new Activity();
     //nextActivity: Array<Activity> = [];
-    prevActivity: string = "start";
-    nextActivity: Array<string> = ["end"];
+    prevActivity: string = "START";
+    nextActivity: Array<string> = ["END"];
     earlyStart: number = 0;
     earlyFinish: number = 0;
     lateStart: number = 0;
@@ -39,18 +39,16 @@ class Activity {
         name: string = "",
         resource: number = 0,
         duration: number = 0,
-        nextActivity: Array<string> = ["end"]
+        nextActivity: Array<string> = ["END"]
     ) {
         this.name = name.toUpperCase();
         this.duration = duration;
         this.resource = resource;
-        if(nextActivity.length == 1 && nextActivity[0] == ''){
-            this.nextActivity = ["end"];
-        }
-        else{
+        if (nextActivity.length == 1 && nextActivity[0] == "") {
+            this.nextActivity = ["END"];
+        } else {
             this.nextActivity = nextActivity;
         }
-        
     }
 }
 
@@ -62,6 +60,8 @@ async function processLineByLine() {
             input: fileStream,
             crlfDelay: Infinity,
         });
+        var startActivity = new Activity("START", 0, 0, ['']);
+        allActivitys.push(startActivity);
 
         for await (const line of rl) {
             // console.log(`Line from file: ${line}`);
@@ -73,13 +73,17 @@ async function processLineByLine() {
                 splitted[0],
                 Number(splitted[1]),
                 Number(splitted[2]),
-                splitted.slice(3,splitted.length)
+                splitted.slice(3, splitted.length)
             );
             activityCount += 1;
             //console.log(newActivity);
             allActivitys.push(newActivity);
             //console.log(allActivitys);
         }
+        var endActivity = new Activity("END", 0, 0, ['']);
+        allActivitys.push(endActivity);
+        activityCount += 2;
+
         //console.log(data);
     } catch (e) {
         console.log("Error:", e.stack);
