@@ -20,6 +20,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
+const readline = require("readline");
+var allActivitys = new Array();
+// var relationMatrix: Array<Array<number>>  = [
+//     [0,0,0,0,0,0,0,0,0,0],
+//     [0,0,0,0,0,0,0,0,0,0],
+//     [0,0,0,0,0,0,0,0,0,0],
+//     [0,0,0,0,0,0,0,0,0,0],
+//     [0,0,0,0,0,0,0,0,0,0],
+//     [0,0,0,0,0,0,0,0,0,0],
+//     [0,0,0,0,0,0,0,0,0,0],
+//     [0,0,0,0,0,0,0,0,0,0],
+//     [0,0,0,0,0,0,0,0,0,0],
+//     [0,0,0,0,0,0,0,0,0,0],
+// ];
+var relationMatrix = [[]];
+var activityCount = 0;
 class Activity {
     constructor(name = "", resource = 0, duration = 0, nextActivity = "") {
         this.name = "";
@@ -42,7 +58,6 @@ class Activity {
         this.nextActivity = nextActivity.toUpperCase();
     }
 }
-const readline = require("readline");
 function processLineByLine() {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -56,6 +71,13 @@ function processLineByLine() {
             try {
                 for (var rl_1 = __asyncValues(rl), rl_1_1; rl_1_1 = yield rl_1.next(), !rl_1_1.done;) {
                     const line = rl_1_1.value;
+                    // console.log(`Line from file: ${line}`);
+                    var splitted = line.split(",", 4);
+                    //console.log(splitted[0]);
+                    var newActivity = new Activity(splitted[0], Number(splitted[1]), Number(splitted[2]), splitted[3]);
+                    activityCount += 1;
+                    //console.log(newActivity);
+                    allActivitys.push(newActivity);
                 }
             }
             catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -72,5 +94,22 @@ function processLineByLine() {
         }
     });
 }
-processLineByLine();
+function initializeRelationMatrix() {
+    for (var i = 0; i < activityCount; i++) {
+        relationMatrix[i] = new Array();
+        for (var j = 0; j < activityCount; j++) {
+            var temp = 0;
+            relationMatrix[i][j] = temp;
+        }
+    }
+}
+function main() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield processLineByLine();
+        //console.log(allActivitys);
+        initializeRelationMatrix();
+        console.log(relationMatrix);
+    });
+}
+main();
 //# sourceMappingURL=start.js.map
