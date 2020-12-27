@@ -297,17 +297,20 @@ function checkIfActivityIsInFloatActivities(relatedActivity) {
     return false;
 }
 function calculateFloatSpace(latestActivity) {
-    return __awaiter(this, void 0, void 0, function* () {
-        var floatSpace = latestActivity.totalFloat;
-        var originalActivityIndex = stringToNumberConverter(latestActivity.name);
-        for (var i = 0; i < activityCount - 1; i++) {
-            if (relationMatrix[originalActivityIndex][i] == 1 &&
-                checkIfActivityIsInFloatActivities(allActivitys[originalActivityIndex])) {
-                floatSpace = Math.min(floatSpace, allActivitys[originalActivityIndex].currentStart);
-            }
+    var floatSpace = latestActivity.totalFloat;
+    var originalActivityIndex = stringToNumberConverter(latestActivity.name);
+    console.log("calculateFloatSpace   ");
+    console.log(latestActivity);
+    for (var i = 1; i < activityCount - 1; i++) {
+        if (relationMatrix[originalActivityIndex][i] == 1 &&
+            checkIfActivityIsInFloatActivities(allActivitys[i])) {
+            floatSpace = Math.min(floatSpace, allActivitys[i].currentStart - latestActivity.currentFinish);
+            console.log("lala   " + floatSpace);
+            // console.log(allActivitys[i]);
         }
-        return floatSpace;
-    });
+    }
+    console.log("final = " + floatSpace);
+    return floatSpace;
 }
 function burgessResourceLeveling() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -320,7 +323,7 @@ function burgessResourceLeveling() {
             var originalActivityIndex = stringToNumberConverter(latestActivity.name);
             var originalActivity = Object.assign({}, allActivitys[originalActivityIndex]);
             console.log(originalActivity);
-            var floatSpace = yield calculateFloatSpace(allActivitys[originalActivityIndex]);
+            var floatSpace = calculateFloatSpace(originalActivity);
             for (var i = 1; i <= floatSpace; i++) {
                 allActivitys[originalActivityIndex].currentStart =
                     originalActivity.currentStart + i;

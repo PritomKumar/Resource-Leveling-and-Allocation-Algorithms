@@ -295,24 +295,28 @@ function checkIfActivityIsInFloatActivities(
     return false;
 }
 
-async function calculateFloatSpace(latestActivity: Activity): Promise<number> {
+function calculateFloatSpace(latestActivity: Activity): number {
     var floatSpace: number = latestActivity.totalFloat;
     var originalActivityIndex: number = stringToNumberConverter(
         latestActivity.name
     );
-    for (var i: number = 0; i < activityCount - 1; i++) {
+    console.log("calculateFloatSpace   " );
+    console.log(latestActivity);
+
+    for (var i: number = 1; i < activityCount - 1; i++) {
         if (
             relationMatrix[originalActivityIndex][i] == 1 &&
-            checkIfActivityIsInFloatActivities(
-                allActivitys[originalActivityIndex]
-            )
+            checkIfActivityIsInFloatActivities(allActivitys[i])
         ) {
             floatSpace = Math.min(
                 floatSpace,
-                allActivitys[originalActivityIndex].currentStart
+                allActivitys[i].currentStart - latestActivity.currentFinish
             );
+            console.log("lala   " + floatSpace);
+           // console.log(allActivitys[i]);
         }
     }
+    console.log("final = " + floatSpace);
     return floatSpace;
 }
 
@@ -329,8 +333,8 @@ async function burgessResourceLeveling() {
         );
         var originalActivity = { ...allActivitys[originalActivityIndex] };
         console.log(originalActivity);
-        var floatSpace: number = await calculateFloatSpace(
-            allActivitys[originalActivityIndex]
+        var floatSpace: number =  calculateFloatSpace(
+            originalActivity
         );
         for (var i: number = 1; i <= floatSpace; i++) {
             allActivitys[originalActivityIndex].currentStart =
