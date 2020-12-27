@@ -52,7 +52,7 @@ class Activity {
     }
 }
 
-async function processLineByLine() {
+async function processInputLineByLine() {
     try {
         // var data = fs.readFileSync("F:\\IIT 8th Semester\\Software Project Management\\Group Assingments\\Project 1\\src\\input.txt", 'utf8');
         const fileStream = fs.createReadStream("src\\input.txt", "utf8");
@@ -94,8 +94,7 @@ function initializeRelationMatrix() {
     for (var i: number = 0; i < activityCount; i++) {
         relationMatrix[i] = new Array<number>();
         for (var j: number = 0; j < activityCount; j++) {
-            var temp: number = 0;
-            relationMatrix[i][j] = temp;
+            relationMatrix[i][j] = 0;
         }
     }
 }
@@ -150,11 +149,23 @@ function stringToNumberConverter(str: string): number {
     return num;
 }
 
+function addRelationToMatrix(){
+
+    for (var i: number = 0; i < activityCount; i++) {
+        var relations = allActivitys[i].nextActivity;
+        for (var j: number = 0; j < relations.length; j++) {
+            relationMatrix[i][stringToNumberConverter(relations[j])] = 1;
+            relationMatrix[stringToNumberConverter(relations[j])][i] = 1;
+        }
+    }
+}
+
 async function main() {
-    await processLineByLine();
-    console.log(allActivitys);
+    await processInputLineByLine();
+    //console.log(allActivitys);
     initializeRelationMatrix();
-    //console.log(relationMatrix);
+    addRelationToMatrix();
+    console.log(relationMatrix);
 }
 
 main();

@@ -63,7 +63,7 @@ class Activity {
         }
     }
 }
-function processLineByLine() {
+function processInputLineByLine() {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -109,8 +109,7 @@ function initializeRelationMatrix() {
     for (var i = 0; i < activityCount; i++) {
         relationMatrix[i] = new Array();
         for (var j = 0; j < activityCount; j++) {
-            var temp = 0;
-            relationMatrix[i][j] = temp;
+            relationMatrix[i][j] = 0;
         }
     }
 }
@@ -163,12 +162,22 @@ function stringToNumberConverter(str) {
     }
     return num;
 }
+function addRelationToMatrix() {
+    for (var i = 0; i < activityCount; i++) {
+        var relations = allActivitys[i].nextActivity;
+        for (var j = 0; j < relations.length; j++) {
+            relationMatrix[i][stringToNumberConverter(relations[j])] = 1;
+            relationMatrix[stringToNumberConverter(relations[j])][i] = 1;
+        }
+    }
+}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield processLineByLine();
-        console.log(allActivitys);
+        yield processInputLineByLine();
+        //console.log(allActivitys);
         initializeRelationMatrix();
-        //console.log(relationMatrix);
+        addRelationToMatrix();
+        console.log(relationMatrix);
     });
 }
 main();
