@@ -102,42 +102,46 @@ function initializeRelationMatrix() {
 
 function stringToNumberConverter(str: string): number {
     var num: number = -1;
+    var start:number = 0;
     switch (str) {
+        case "START":
+            num = start;
+            break;
         case "A":
-            num = 0;
+            num = start + 1;
             break;
         case "B ":
-            num = 1;
+            num = start + 2;
             break;
         case "C":
-            num = 2;
+            num = start + 3;
             break;
         case "D":
-            num = 3;
+            num = start + 4;
             break;
         case "E":
-            num = 4;
+            num = start + 5;
             break;
         case "F":
-            num = 5;
+            num = start + 6;
             break;
         case "G":
-            num = 6;
+            num = start + 7;
             break;
         case "H":
-            num = 7;
+            num = start + 8;
             break;
         case "I":
-            num = 8;
+            num = start + 9;
             break;
         case "J":
-            num = 9;
+            num = start + 10;
             break;
         case "K":
-            num = 10;
+            num = start + 11;
             break;
-        case "L":
-            num = 11;
+        case "END":
+            num = start + 12;
             break;
         default:
             num = -1;
