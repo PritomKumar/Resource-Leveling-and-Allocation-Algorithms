@@ -221,6 +221,13 @@ function calculateFloat() {
     }
 }
 
+function initializeCurrentStartAndFinish() {
+    for (var i: number = 0; i < activityCount - 1; i++) {
+        allActivitys[i].currentStart = allActivitys[i].earlyStart;
+        allActivitys[i].currentFinish = allActivitys[i].earlyFinish;
+    }
+}
+
 async function main() {
     await processInputLineByLine();
     initializeRelationMatrix();
@@ -229,6 +236,7 @@ async function main() {
     calculateESAndEF();
     calculateLSAndLF();
     calculateFloat();
+    initializeCurrentStartAndFinish();
     console.log(allActivitys);
 }
 

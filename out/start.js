@@ -223,6 +223,12 @@ function calculateFloat() {
             allActivitys[i].lateStart - allActivitys[i].earlyStart;
     }
 }
+function initializeCurrentStartAndFinish() {
+    for (var i = 0; i < activityCount - 1; i++) {
+        allActivitys[i].currentStart = allActivitys[i].earlyStart;
+        allActivitys[i].currentFinish = allActivitys[i].earlyFinish;
+    }
+}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield processInputLineByLine();
@@ -232,6 +238,7 @@ function main() {
         calculateESAndEF();
         calculateLSAndLF();
         calculateFloat();
+        initializeCurrentStartAndFinish();
         console.log(allActivitys);
     });
 }
