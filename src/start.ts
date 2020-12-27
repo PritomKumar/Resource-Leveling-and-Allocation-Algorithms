@@ -39,8 +39,8 @@ class Activity {
 
     constructor(
         name: string = "",
-        resource: number = 0,
         duration: number = 0,
+        resource: number = 0,
         nextActivity: Array<string> = ["END"]
     ) {
         this.name = name.toUpperCase();
@@ -62,7 +62,7 @@ async function processInputLineByLine() {
             input: fileStream,
             crlfDelay: Infinity,
         });
-        var startActivity = new Activity("START", 0, 0, ['']);
+        var startActivity = new Activity("START", 0, 0, ["NULL"]);
         allActivitys.push(startActivity);
 
         for await (const line of rl) {
@@ -82,9 +82,12 @@ async function processInputLineByLine() {
             allActivitys.push(newActivity);
             //console.log(allActivitys);
         }
-        var endActivity = new Activity("END", 0, 0, ['']);
+        var endActivity = new Activity("END", 0, 0, ["NULL"]);
         allActivitys.push(endActivity);
-        activityCount += 2;
+        var nullActivity = new Activity("NULL", 0, 0, ["NULL"]);
+        allActivitys.push(nullActivity);
+
+        activityCount += 3;
 
         //console.log(data);
     } catch (e) {
@@ -103,7 +106,7 @@ function initializeRelationMatrix() {
 
 function stringToNumberConverter(str: string): number {
     var num: number = -1;
-    var start:number = 0;
+    var start: number = 0;
     switch (str) {
         case "START":
             num = start;
@@ -144,6 +147,9 @@ function stringToNumberConverter(str: string): number {
         case "END":
             num = start + 12;
             break;
+        case "NULL":
+            num = start + 13;
+            break;
         default:
             num = -1;
             break;
@@ -151,23 +157,44 @@ function stringToNumberConverter(str: string): number {
     return num;
 }
 
-function addRelationToMatrix(){
-
+function addRelationToMatrix() {
     for (var i: number = 0; i < activityCount; i++) {
         var relations = allActivitys[i].nextActivity;
         for (var j: number = 0; j < relations.length; j++) {
             relationMatrix[i][stringToNumberConverter(relations[j])] = 1;
-            relationMatrix[stringToNumberConverter(relations[j])][i] = 1;
+            relationMatrix[stringToNumberConverter(relations[j])][i] = 2;
         }
+    }
+}
+
+function calculateESAndEF() {
+    var earlyStart: number = 0;
+    var earlyFinish: number = 0;
+    for (var i: number = 0; i < activityCount - 1; i++) {
+        earlyStart = allActivitys[i].earlyStart;
+        earlyFinish = allActivitys[i].earlyStart + allActivitys[i].duration;
+        for (var j: number = 0; j < activityCount - 1; j++) {
+            if (relationMatrix[i][j] == 1) {
+                allActivitys[j].earlyStart = Math.max(
+                    earlyFinish,
+                    allActivitys[j].earlyStart
+                );
+                allActivitys[j].earlyFinish =  allActivitys[j].earlyStart + allActivitys[j].duration;
+
+            }
+        }
+        allActivitys[i].earlyStart = earlyStart;
+        allActivitys[i].earlyFinish = earlyFinish;
     }
 }
 
 async function main() {
     await processInputLineByLine();
-    //console.log(allActivitys);
     initializeRelationMatrix();
     addRelationToMatrix();
-    console.log(relationMatrix);
+    //console.log(relationMatrix);
+    calculateESAndEF();
+    console.log(allActivitys);
 }
 
 main();

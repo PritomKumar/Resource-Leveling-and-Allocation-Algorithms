@@ -37,7 +37,7 @@ var allActivitys = new Array();
 var relationMatrix = [[]];
 var activityCount = 0;
 class Activity {
-    constructor(name = "", resource = 0, duration = 0, nextActivity = ["END"]) {
+    constructor(name = "", duration = 0, resource = 0, nextActivity = ["END"]) {
         this.name = "";
         this.description = "";
         this.resource = 0;
@@ -75,7 +75,7 @@ function processInputLineByLine() {
                 input: fileStream,
                 crlfDelay: Infinity,
             });
-            var startActivity = new Activity("START", 0, 0, ['']);
+            var startActivity = new Activity("START", 0, 0, ["NULL"]);
             allActivitys.push(startActivity);
             try {
                 for (var rl_1 = __asyncValues(rl), rl_1_1; rl_1_1 = yield rl_1.next(), !rl_1_1.done;) {
@@ -97,9 +97,11 @@ function processInputLineByLine() {
                 }
                 finally { if (e_1) throw e_1.error; }
             }
-            var endActivity = new Activity("END", 0, 0, ['']);
+            var endActivity = new Activity("END", 0, 0, ["NULL"]);
             allActivitys.push(endActivity);
-            activityCount += 2;
+            var nullActivity = new Activity("NULL", 0, 0, ["NULL"]);
+            allActivitys.push(nullActivity);
+            activityCount += 3;
             //console.log(data);
         }
         catch (e) {
@@ -158,6 +160,9 @@ function stringToNumberConverter(str) {
         case "END":
             num = start + 12;
             break;
+        case "NULL":
+            num = start + 13;
+            break;
         default:
             num = -1;
             break;
@@ -169,17 +174,34 @@ function addRelationToMatrix() {
         var relations = allActivitys[i].nextActivity;
         for (var j = 0; j < relations.length; j++) {
             relationMatrix[i][stringToNumberConverter(relations[j])] = 1;
-            relationMatrix[stringToNumberConverter(relations[j])][i] = 1;
+            relationMatrix[stringToNumberConverter(relations[j])][i] = 2;
         }
+    }
+}
+function calculateESAndEF() {
+    var earlyStart = 0;
+    var earlyFinish = 0;
+    for (var i = 0; i < activityCount - 1; i++) {
+        earlyStart = allActivitys[i].earlyStart;
+        earlyFinish = allActivitys[i].earlyStart + allActivitys[i].duration;
+        for (var j = 0; j < activityCount - 1; j++) {
+            if (relationMatrix[i][j] == 1) {
+                allActivitys[j].earlyStart = Math.max(earlyFinish, allActivitys[j].earlyStart);
+                allActivitys[j].earlyFinish = allActivitys[j].earlyStart + allActivitys[j].duration;
+            }
+        }
+        allActivitys[i].earlyStart = earlyStart;
+        allActivitys[i].earlyFinish = earlyFinish;
     }
 }
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield processInputLineByLine();
-        //console.log(allActivitys);
         initializeRelationMatrix();
         addRelationToMatrix();
-        console.log(relationMatrix);
+        //console.log(relationMatrix);
+        calculateESAndEF();
+        console.log(allActivitys);
     });
 }
 main();
