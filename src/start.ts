@@ -168,7 +168,7 @@ function addRelationToMatrix() {
     }
 }
 
-function calculateESAndEF() {
+async function calculateESAndEF() {
     var earlyStart: number = 0;
     var earlyFinish: number = 0;
     for (var i: number = 0; i < activityCount - 1; i++) {
@@ -189,7 +189,7 @@ function calculateESAndEF() {
     }
 }
 
-function calculateLSAndLF() {
+async function calculateLSAndLF() {
     var lastActivity: number = activityCount - 2;
     allActivitys[lastActivity].lateFinish =
         allActivitys[lastActivity].earlyFinish;
@@ -214,18 +214,40 @@ function calculateLSAndLF() {
     totalDays = allActivitys[lastActivity].earlyFinish;
 }
 
-function calculateFloat() {
+async function calculateFloat() {
     for (var i: number = 0; i < activityCount - 1; i++) {
         allActivitys[i].totalFloat =
             allActivitys[i].lateStart - allActivitys[i].earlyStart;
     }
 }
 
-function initializeCurrentStartAndFinish() {
+async function initializeCurrentStartAndFinish() {
     for (var i: number = 0; i < activityCount - 1; i++) {
         allActivitys[i].currentStart = allActivitys[i].earlyStart;
         allActivitys[i].currentFinish = allActivitys[i].earlyFinish;
     }
+}
+
+function calcucateRSquare(): number {
+    var rSquareTotal: number = 0;
+    for (var i: number = 1; i <= totalDays; i++) {
+        var rSquare: number = 0;
+        var r: number = 0;
+        for (var j: number = 1; j < activityCount - 1; j++) {
+            if (
+                allActivitys[j].currentStart < i &&
+                allActivitys[j].currentFinish >= i
+            ) {
+                
+                r += allActivitys[j].resource;
+                //console.log( r + " +  ");
+            }
+        }
+        //console.log(i + "   " + r);
+        rSquare = r * r;
+        rSquareTotal += rSquare;
+    }
+    return rSquareTotal;
 }
 
 async function main() {
@@ -233,11 +255,13 @@ async function main() {
     initializeRelationMatrix();
     addRelationToMatrix();
     //console.log(relationMatrix);
-    calculateESAndEF();
-    calculateLSAndLF();
-    calculateFloat();
-    initializeCurrentStartAndFinish();
-    console.log(allActivitys);
+    await calculateESAndEF();
+    await calculateLSAndLF();
+    await calculateFloat();
+    await initializeCurrentStartAndFinish();
+    var ds = calcucateRSquare();
+    console.log(ds);
+    //console.log(allActivitys);
 }
 
 main();

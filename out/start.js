@@ -180,54 +180,80 @@ function addRelationToMatrix() {
     }
 }
 function calculateESAndEF() {
-    var earlyStart = 0;
-    var earlyFinish = 0;
-    for (var i = 0; i < activityCount - 1; i++) {
-        earlyStart = allActivitys[i].earlyStart;
-        earlyFinish = allActivitys[i].earlyStart + allActivitys[i].duration;
-        for (var j = 0; j < activityCount - 1; j++) {
-            if (relationMatrix[i][j] == 1) {
-                allActivitys[j].earlyStart = Math.max(earlyFinish, allActivitys[j].earlyStart);
-                allActivitys[j].earlyFinish =
-                    allActivitys[j].earlyStart + allActivitys[j].duration;
+    return __awaiter(this, void 0, void 0, function* () {
+        var earlyStart = 0;
+        var earlyFinish = 0;
+        for (var i = 0; i < activityCount - 1; i++) {
+            earlyStart = allActivitys[i].earlyStart;
+            earlyFinish = allActivitys[i].earlyStart + allActivitys[i].duration;
+            for (var j = 0; j < activityCount - 1; j++) {
+                if (relationMatrix[i][j] == 1) {
+                    allActivitys[j].earlyStart = Math.max(earlyFinish, allActivitys[j].earlyStart);
+                    allActivitys[j].earlyFinish =
+                        allActivitys[j].earlyStart + allActivitys[j].duration;
+                }
             }
+            allActivitys[i].earlyStart = earlyStart;
+            allActivitys[i].earlyFinish = earlyFinish;
         }
-        allActivitys[i].earlyStart = earlyStart;
-        allActivitys[i].earlyFinish = earlyFinish;
-    }
+    });
 }
 function calculateLSAndLF() {
-    var lastActivity = activityCount - 2;
-    allActivitys[lastActivity].lateFinish =
-        allActivitys[lastActivity].earlyFinish;
-    var lateStart = 0;
-    var lateFinish = 0;
-    for (var i = activityCount - 2; i >= 0; i--) {
-        lateFinish = allActivitys[i].lateFinish;
-        lateStart = allActivitys[i].lateFinish - allActivitys[i].duration;
-        for (var j = activityCount - 2; j >= 0; j--) {
-            if (relationMatrix[i][j] == 2) {
-                allActivitys[j].lateFinish = Math.min(lateFinish, allActivitys[i].lateStart);
-                allActivitys[j].lateStart =
-                    allActivitys[j].lateFinish - allActivitys[j].duration;
+    return __awaiter(this, void 0, void 0, function* () {
+        var lastActivity = activityCount - 2;
+        allActivitys[lastActivity].lateFinish =
+            allActivitys[lastActivity].earlyFinish;
+        var lateStart = 0;
+        var lateFinish = 0;
+        for (var i = activityCount - 2; i >= 0; i--) {
+            lateFinish = allActivitys[i].lateFinish;
+            lateStart = allActivitys[i].lateFinish - allActivitys[i].duration;
+            for (var j = activityCount - 2; j >= 0; j--) {
+                if (relationMatrix[i][j] == 2) {
+                    allActivitys[j].lateFinish = Math.min(lateFinish, allActivitys[i].lateStart);
+                    allActivitys[j].lateStart =
+                        allActivitys[j].lateFinish - allActivitys[j].duration;
+                }
             }
+            allActivitys[i].lateStart = lateStart;
+            allActivitys[i].lateFinish = lateFinish;
         }
-        allActivitys[i].lateStart = lateStart;
-        allActivitys[i].lateFinish = lateFinish;
-    }
-    totalDays = allActivitys[lastActivity].earlyFinish;
+        totalDays = allActivitys[lastActivity].earlyFinish;
+    });
 }
 function calculateFloat() {
-    for (var i = 0; i < activityCount - 1; i++) {
-        allActivitys[i].totalFloat =
-            allActivitys[i].lateStart - allActivitys[i].earlyStart;
-    }
+    return __awaiter(this, void 0, void 0, function* () {
+        for (var i = 0; i < activityCount - 1; i++) {
+            allActivitys[i].totalFloat =
+                allActivitys[i].lateStart - allActivitys[i].earlyStart;
+        }
+    });
 }
 function initializeCurrentStartAndFinish() {
-    for (var i = 0; i < activityCount - 1; i++) {
-        allActivitys[i].currentStart = allActivitys[i].earlyStart;
-        allActivitys[i].currentFinish = allActivitys[i].earlyFinish;
+    return __awaiter(this, void 0, void 0, function* () {
+        for (var i = 0; i < activityCount - 1; i++) {
+            allActivitys[i].currentStart = allActivitys[i].earlyStart;
+            allActivitys[i].currentFinish = allActivitys[i].earlyFinish;
+        }
+    });
+}
+function calcucateRSquare() {
+    var rSquareTotal = 0;
+    for (var i = 1; i <= totalDays; i++) {
+        var rSquare = 0;
+        var r = 0;
+        for (var j = 1; j < activityCount - 1; j++) {
+            if (allActivitys[j].currentStart < i &&
+                allActivitys[j].currentFinish >= i) {
+                r += allActivitys[j].resource;
+                //console.log( r + " +  ");
+            }
+        }
+        //console.log(i + "   " + r);
+        rSquare = r * r;
+        rSquareTotal += rSquare;
     }
+    return rSquareTotal;
 }
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -235,11 +261,13 @@ function main() {
         initializeRelationMatrix();
         addRelationToMatrix();
         //console.log(relationMatrix);
-        calculateESAndEF();
-        calculateLSAndLF();
-        calculateFloat();
-        initializeCurrentStartAndFinish();
-        console.log(allActivitys);
+        yield calculateESAndEF();
+        yield calculateLSAndLF();
+        yield calculateFloat();
+        yield initializeCurrentStartAndFinish();
+        var ds = calcucateRSquare();
+        console.log(ds);
+        //console.log(allActivitys);
     });
 }
 main();
