@@ -33,8 +33,8 @@ class Activity {
     currentFinish: number = 0;
     earlyStart: number = 0;
     earlyFinish: number = 0;
-    lateStart: number = 0;
-    lateFinish: number = 0;
+    lateStart: number = Infinity;
+    lateFinish: number = Infinity;
     totalFloat: number = 0;
 
     constructor(
@@ -179,12 +179,36 @@ function calculateESAndEF() {
                     earlyFinish,
                     allActivitys[j].earlyStart
                 );
-                allActivitys[j].earlyFinish =  allActivitys[j].earlyStart + allActivitys[j].duration;
-
+                allActivitys[j].earlyFinish =
+                    allActivitys[j].earlyStart + allActivitys[j].duration;
             }
         }
         allActivitys[i].earlyStart = earlyStart;
         allActivitys[i].earlyFinish = earlyFinish;
+    }
+}
+
+function calculateLSAndLF() {
+    var lastActivity: number = activityCount - 2;
+    allActivitys[lastActivity].lateFinish =
+        allActivitys[lastActivity].earlyFinish;
+    var lateStart: number = 0;
+    var lateFinish: number = 0;
+    for (var i: number = activityCount - 2; i >= 0; i--) {
+        lateFinish = allActivitys[i].lateFinish;
+        lateStart = allActivitys[i].lateFinish - allActivitys[i].duration;
+        for (var j: number = activityCount - 2; j >= 0; j--) {
+            if (relationMatrix[i][j] == 2) {
+                allActivitys[j].lateFinish = Math.min(
+                    lateFinish,
+                    allActivitys[i].lateStart
+                );
+                allActivitys[j].lateStart =
+                    allActivitys[j].lateFinish - allActivitys[j].duration;
+            }
+        }
+        allActivitys[i].lateStart = lateStart;
+        allActivitys[i].lateFinish = lateFinish;
     }
 }
 
@@ -194,6 +218,7 @@ async function main() {
     addRelationToMatrix();
     //console.log(relationMatrix);
     calculateESAndEF();
+    calculateLSAndLF();
     console.log(allActivitys);
 }
 

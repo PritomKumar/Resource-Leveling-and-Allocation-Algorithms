@@ -51,8 +51,8 @@ class Activity {
         this.currentFinish = 0;
         this.earlyStart = 0;
         this.earlyFinish = 0;
-        this.lateStart = 0;
-        this.lateFinish = 0;
+        this.lateStart = Infinity;
+        this.lateFinish = Infinity;
         this.totalFloat = 0;
         this.name = name.toUpperCase();
         this.duration = duration;
@@ -187,11 +187,32 @@ function calculateESAndEF() {
         for (var j = 0; j < activityCount - 1; j++) {
             if (relationMatrix[i][j] == 1) {
                 allActivitys[j].earlyStart = Math.max(earlyFinish, allActivitys[j].earlyStart);
-                allActivitys[j].earlyFinish = allActivitys[j].earlyStart + allActivitys[j].duration;
+                allActivitys[j].earlyFinish =
+                    allActivitys[j].earlyStart + allActivitys[j].duration;
             }
         }
         allActivitys[i].earlyStart = earlyStart;
         allActivitys[i].earlyFinish = earlyFinish;
+    }
+}
+function calculateLSAndLF() {
+    var lastActivity = activityCount - 2;
+    allActivitys[lastActivity].lateFinish =
+        allActivitys[lastActivity].earlyFinish;
+    var lateStart = 0;
+    var lateFinish = 0;
+    for (var i = activityCount - 2; i >= 0; i--) {
+        lateFinish = allActivitys[i].lateFinish;
+        lateStart = allActivitys[i].lateFinish - allActivitys[i].duration;
+        for (var j = activityCount - 2; j >= 0; j--) {
+            if (relationMatrix[i][j] == 2) {
+                allActivitys[j].lateFinish = Math.min(lateFinish, allActivitys[i].lateStart);
+                allActivitys[j].lateStart =
+                    allActivitys[j].lateFinish - allActivitys[j].duration;
+            }
+        }
+        allActivitys[i].lateStart = lateStart;
+        allActivitys[i].lateFinish = lateFinish;
     }
 }
 function main() {
@@ -201,6 +222,7 @@ function main() {
         addRelationToMatrix();
         //console.log(relationMatrix);
         calculateESAndEF();
+        calculateLSAndLF();
         console.log(allActivitys);
     });
 }
