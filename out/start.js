@@ -37,7 +37,7 @@ var allActivitys = new Array();
 var relationMatrix = [[]];
 var activityCount = 0;
 class Activity {
-    constructor(name = "", resource = 0, duration = 0, nextActivity = "") {
+    constructor(name = "", resource = 0, duration = 0, nextActivity = ["end"]) {
         this.name = "";
         this.description = "";
         this.resource = 0;
@@ -45,8 +45,8 @@ class Activity {
         //Has to solve activity issue
         //prevActivity:Activity = new Activity();
         //nextActivity: Array<Activity> = [];
-        this.prevActivity = "";
-        this.nextActivity = "";
+        this.prevActivity = "start";
+        this.nextActivity = ["end"];
         this.earlyStart = 0;
         this.earlyFinish = 0;
         this.lateStart = 0;
@@ -55,7 +55,12 @@ class Activity {
         this.name = name.toUpperCase();
         this.duration = duration;
         this.resource = resource;
-        this.nextActivity = nextActivity.toUpperCase();
+        if (nextActivity.length == 1 && nextActivity[0] == '') {
+            this.nextActivity = ["end"];
+        }
+        else {
+            this.nextActivity = nextActivity;
+        }
     }
 }
 function processLineByLine() {
@@ -72,9 +77,10 @@ function processLineByLine() {
                 for (var rl_1 = __asyncValues(rl), rl_1_1; rl_1_1 = yield rl_1.next(), !rl_1_1.done;) {
                     const line = rl_1_1.value;
                     // console.log(`Line from file: ${line}`);
-                    var splitted = line.split(",", 4);
+                    var splitted = line.split(",");
                     //console.log(splitted[0]);
-                    var newActivity = new Activity(splitted[0], Number(splitted[1]), Number(splitted[2]), splitted[3]);
+                    //deskhte hobe
+                    var newActivity = new Activity(splitted[0], Number(splitted[1]), Number(splitted[2]), splitted.slice(3, splitted.length));
                     activityCount += 1;
                     //console.log(newActivity);
                     allActivitys.push(newActivity);
@@ -103,12 +109,57 @@ function initializeRelationMatrix() {
         }
     }
 }
+function stringToNumberConverter(str) {
+    var num = -1;
+    switch (str) {
+        case "A":
+            num = 0;
+            break;
+        case "B ":
+            num = 1;
+            break;
+        case "C":
+            num = 2;
+            break;
+        case "D":
+            num = 3;
+            break;
+        case "E":
+            num = 4;
+            break;
+        case "F":
+            num = 5;
+            break;
+        case "G":
+            num = 6;
+            break;
+        case "H":
+            num = 7;
+            break;
+        case "I":
+            num = 8;
+            break;
+        case "J":
+            num = 9;
+            break;
+        case "K":
+            num = 10;
+            break;
+        case "L":
+            num = 11;
+            break;
+        default:
+            num = -1;
+            break;
+    }
+    return num;
+}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield processLineByLine();
-        //console.log(allActivitys);
+        console.log(allActivitys);
         initializeRelationMatrix();
-        console.log(relationMatrix);
+        //console.log(relationMatrix);
     });
 }
 main();
