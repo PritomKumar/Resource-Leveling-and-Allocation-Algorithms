@@ -288,9 +288,24 @@ function findLatestActivity() {
     }
     return index;
 }
-function calculateFloatSpace() {
+function checkIfActivityIsInFloatActivities(relatedActivity) {
+    for (var i = 0; i < floatActivitys.length; i++) {
+        if (relatedActivity.name == floatActivitys[i].name) {
+            return true;
+        }
+    }
+    return false;
+}
+function calculateFloatSpace(latestActivity) {
     return __awaiter(this, void 0, void 0, function* () {
-        var floatSpace = 0;
+        var floatSpace = latestActivity.totalFloat;
+        var originalActivityIndex = stringToNumberConverter(latestActivity.name);
+        for (var i = 0; i < activityCount - 1; i++) {
+            if (relationMatrix[originalActivityIndex][i] == 1 &&
+                checkIfActivityIsInFloatActivities(allActivitys[originalActivityIndex])) {
+                floatSpace = Math.min(floatSpace, allActivitys[originalActivityIndex].currentStart);
+            }
+        }
         return floatSpace;
     });
 }
@@ -305,8 +320,8 @@ function burgessResourceLeveling() {
             var originalActivityIndex = stringToNumberConverter(latestActivity.name);
             var originalActivity = Object.assign({}, allActivitys[originalActivityIndex]);
             console.log(originalActivity);
-            var floatSpace = allActivitys[originalActivityIndex].totalFloat;
-            for (var i = 1; i <= allActivitys[originalActivityIndex].totalFloat; i++) {
+            var floatSpace = yield calculateFloatSpace(allActivitys[originalActivityIndex]);
+            for (var i = 1; i <= floatSpace; i++) {
                 allActivitys[originalActivityIndex].currentStart =
                     originalActivity.currentStart + i;
                 allActivitys[originalActivityIndex].currentFinish =

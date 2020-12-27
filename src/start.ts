@@ -283,19 +283,45 @@ function findLatestActivity(): number {
     return index;
 }
 
-async function calculateFloatSpace():Promise<number>{
+function checkIfActivityIsInFloatActivities(
+    relatedActivity: Activity
+): boolean {
+    for (var i: number = 0; i < floatActivitys.length; i++) {
+        if (relatedActivity.name == floatActivitys[i].name) {
+            return true;
+        }
+    }
 
-    var floatSpace:number = 0;
-    
-    
+    return false;
+}
+
+async function calculateFloatSpace(latestActivity: Activity): Promise<number> {
+    var floatSpace: number = latestActivity.totalFloat;
+    var originalActivityIndex: number = stringToNumberConverter(
+        latestActivity.name
+    );
+    for (var i: number = 0; i < activityCount - 1; i++) {
+        if (
+            relationMatrix[originalActivityIndex][i] == 1 &&
+            checkIfActivityIsInFloatActivities(
+                allActivitys[originalActivityIndex]
+            )
+        ) {
+            floatSpace = Math.min(
+                floatSpace,
+                allActivitys[originalActivityIndex].currentStart
+            );
+        }
+    }
     return floatSpace;
 }
+
 async function burgessResourceLeveling() {
     for (var k: number = 0; k < floatActivitys.length; k++) {
         var initialRsquare: number = Infinity;
         var calculatedRsquare: number = 0;
         var position: number = 0;
-       
+
         var latestActivityIndex: number = findLatestActivity();
         var latestActivity = floatActivitys[latestActivityIndex];
         var originalActivityIndex: number = stringToNumberConverter(
@@ -303,12 +329,10 @@ async function burgessResourceLeveling() {
         );
         var originalActivity = { ...allActivitys[originalActivityIndex] };
         console.log(originalActivity);
-        var floatSpace: number = allActivitys[originalActivityIndex].totalFloat;
-        for (
-            var i: number = 1;
-            i <= allActivitys[originalActivityIndex].totalFloat;
-            i++
-        ) {
+        var floatSpace: number = await calculateFloatSpace(
+            allActivitys[originalActivityIndex]
+        );
+        for (var i: number = 1; i <= floatSpace; i++) {
             allActivitys[originalActivityIndex].currentStart =
                 originalActivity.currentStart + i;
             allActivitys[originalActivityIndex].currentFinish =
