@@ -261,7 +261,7 @@ function findFloatActivities() {
     return __awaiter(this, void 0, void 0, function* () {
         for (var i = 1; i < activityCount - 1; i++) {
             if (allActivitys[i].totalFloat > 0) {
-                floatActivitys.push(allActivitys[i]);
+                floatActivitys.push(Object.assign({}, allActivitys[i]));
             }
         }
     });
@@ -271,26 +271,63 @@ function findLatestActivity() {
     var largestEarlyFinisherActivity;
     var index = 0;
     for (var i = 0; i < floatActivitys.length; i++) {
-        if (floatActivitys[i].earlyFinish > largestEarlyFinish) {
-            largestEarlyFinish = floatActivitys[i].earlyFinish;
+        if (floatActivitys[i].currentFinish > largestEarlyFinish) {
+            largestEarlyFinish = floatActivitys[i].currentFinish;
             index = i;
             largestEarlyFinisherActivity = floatActivitys[i];
         }
-        else if (floatActivitys[i].earlyFinish == largestEarlyFinish) {
+        else if (floatActivitys[i].currentFinish == largestEarlyFinish) {
             largestEarlyFinisherActivity = floatActivitys[i];
             if (largestEarlyFinisherActivity.resource <
-                floatActivitys[i].earlyFinish) {
+                floatActivitys[i].currentFinish) {
                 largestEarlyFinisherActivity = floatActivitys[i];
-                largestEarlyFinish = floatActivitys[i].earlyFinish;
+                largestEarlyFinish = floatActivitys[i].currentFinish;
                 index = i;
             }
         }
     }
     return index;
 }
+function calculateFloatSpace() {
+    return __awaiter(this, void 0, void 0, function* () {
+        var floatSpace = 0;
+        return floatSpace;
+    });
+}
 function burgessResourceLeveling() {
-    var initialRsquare = totalRsquare;
-    var latestActivity = floatActivitys[findLatestActivity()];
+    return __awaiter(this, void 0, void 0, function* () {
+        for (var k = 0; k < floatActivitys.length; k++) {
+            var initialRsquare = Infinity;
+            var calculatedRsquare = 0;
+            var position = 0;
+            var latestActivityIndex = findLatestActivity();
+            var latestActivity = floatActivitys[latestActivityIndex];
+            var originalActivityIndex = stringToNumberConverter(latestActivity.name);
+            var originalActivity = Object.assign({}, allActivitys[originalActivityIndex]);
+            console.log(originalActivity);
+            var floatSpace = allActivitys[originalActivityIndex].totalFloat;
+            for (var i = 1; i <= allActivitys[originalActivityIndex].totalFloat; i++) {
+                allActivitys[originalActivityIndex].currentStart =
+                    originalActivity.currentStart + i;
+                allActivitys[originalActivityIndex].currentFinish =
+                    originalActivity.currentFinish + i;
+                calculatedRsquare = calcucateRSquare();
+                console.log(calculatedRsquare);
+                if (calculatedRsquare < initialRsquare) {
+                    initialRsquare = calculatedRsquare;
+                    position = i;
+                }
+            }
+            allActivitys[originalActivityIndex].currentStart =
+                originalActivity.currentStart + position;
+            allActivitys[originalActivityIndex].currentFinish =
+                originalActivity.currentFinish + position;
+            floatActivitys[latestActivityIndex].currentFinish = -1;
+            calculatedRsquare = calcucateRSquare();
+            console.log("Final Rsquare = " + calculatedRsquare);
+            console.log(allActivitys[originalActivityIndex]);
+        }
+    });
 }
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -304,9 +341,10 @@ function main() {
         // console.log(allActivitys);
         yield initializeCurrentStartAndFinish();
         totalRsquare = calcucateRSquare();
-        //console.log(rSquare);
+        //console.log(totalRsquare);
         yield findFloatActivities();
         //console.log(floatActivitys);
+        yield burgessResourceLeveling();
     });
 }
 main();

@@ -1,6 +1,5 @@
 "use strict";
-calculateESAndEF();
-calculateLSAndLF();
-console.log(allActivitys);
-main();
+calculatedRsquare = calcucateRSquare();
+console.log(calculatedRsquare);
+conso;
 //# sourceMappingURL=tempCodeRunnerFile.js.map

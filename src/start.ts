@@ -254,7 +254,7 @@ function calcucateRSquare(): number {
 async function findFloatActivities() {
     for (var i: number = 1; i < activityCount - 1; i++) {
         if (allActivitys[i].totalFloat > 0) {
-            floatActivitys.push(allActivitys[i]);
+            floatActivitys.push({ ...allActivitys[i] });
         }
     }
 }
@@ -264,18 +264,18 @@ function findLatestActivity(): number {
     var largestEarlyFinisherActivity: Activity;
     var index: number = 0;
     for (var i: number = 0; i < floatActivitys.length; i++) {
-        if (floatActivitys[i].earlyFinish > largestEarlyFinish) {
-            largestEarlyFinish = floatActivitys[i].earlyFinish;
+        if (floatActivitys[i].currentFinish > largestEarlyFinish) {
+            largestEarlyFinish = floatActivitys[i].currentFinish;
             index = i;
             largestEarlyFinisherActivity = floatActivitys[i];
-        } else if (floatActivitys[i].earlyFinish == largestEarlyFinish) {
+        } else if (floatActivitys[i].currentFinish == largestEarlyFinish) {
             largestEarlyFinisherActivity = floatActivitys[i];
             if (
                 largestEarlyFinisherActivity.resource <
-                floatActivitys[i].earlyFinish
+                floatActivitys[i].currentFinish
             ) {
                 largestEarlyFinisherActivity = floatActivitys[i];
-                largestEarlyFinish = floatActivitys[i].earlyFinish;
+                largestEarlyFinish = floatActivitys[i].currentFinish;
                 index = i;
             }
         }
@@ -283,10 +283,54 @@ function findLatestActivity(): number {
     return index;
 }
 
-function burgessResourceLeveling(){
-    var initialRsquare : number = totalRsquare;
-    var latestActivity = floatActivitys[findLatestActivity()]; 
+async function calculateFloatSpace():Promise<number>{
 
+    var floatSpace:number = 0;
+    
+    
+    return floatSpace;
+}
+async function burgessResourceLeveling() {
+    for (var k: number = 0; k < floatActivitys.length; k++) {
+        var initialRsquare: number = Infinity;
+        var calculatedRsquare: number = 0;
+        var position: number = 0;
+       
+        var latestActivityIndex: number = findLatestActivity();
+        var latestActivity = floatActivitys[latestActivityIndex];
+        var originalActivityIndex: number = stringToNumberConverter(
+            latestActivity.name
+        );
+        var originalActivity = { ...allActivitys[originalActivityIndex] };
+        console.log(originalActivity);
+        var floatSpace: number = allActivitys[originalActivityIndex].totalFloat;
+        for (
+            var i: number = 1;
+            i <= allActivitys[originalActivityIndex].totalFloat;
+            i++
+        ) {
+            allActivitys[originalActivityIndex].currentStart =
+                originalActivity.currentStart + i;
+            allActivitys[originalActivityIndex].currentFinish =
+                originalActivity.currentFinish + i;
+            calculatedRsquare = calcucateRSquare();
+            console.log(calculatedRsquare);
+            if (calculatedRsquare < initialRsquare) {
+                initialRsquare = calculatedRsquare;
+                position = i;
+            }
+        }
+
+        allActivitys[originalActivityIndex].currentStart =
+            originalActivity.currentStart + position;
+        allActivitys[originalActivityIndex].currentFinish =
+            originalActivity.currentFinish + position;
+
+        floatActivitys[latestActivityIndex].currentFinish = -1;
+        calculatedRsquare = calcucateRSquare();
+        console.log("Final Rsquare = " + calculatedRsquare);
+        console.log(allActivitys[originalActivityIndex]);
+    }
 }
 
 async function main() {
@@ -300,9 +344,10 @@ async function main() {
     // console.log(allActivitys);
     await initializeCurrentStartAndFinish();
     totalRsquare = calcucateRSquare();
-    //console.log(rSquare);
+    //console.log(totalRsquare);
     await findFloatActivities();
     //console.log(floatActivitys);
+    await burgessResourceLeveling();
 }
 
 main();
