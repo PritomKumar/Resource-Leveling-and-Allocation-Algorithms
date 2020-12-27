@@ -20,6 +20,7 @@ var floatActivitys = new Array<Activity>();
 var relationMatrix: Array<Array<number>> = [[]];
 var activityCount: number = 0;
 var totalDays: number = 0;
+var totalRsquare: number = 0;
 
 class Activity {
     name: string = "";
@@ -258,6 +259,36 @@ async function findFloatActivities() {
     }
 }
 
+function findLatestActivity(): number {
+    var largestEarlyFinish: number = 0;
+    var largestEarlyFinisherActivity: Activity;
+    var index: number = 0;
+    for (var i: number = 0; i < floatActivitys.length; i++) {
+        if (floatActivitys[i].earlyFinish > largestEarlyFinish) {
+            largestEarlyFinish = floatActivitys[i].earlyFinish;
+            index = i;
+            largestEarlyFinisherActivity = floatActivitys[i];
+        } else if (floatActivitys[i].earlyFinish == largestEarlyFinish) {
+            largestEarlyFinisherActivity = floatActivitys[i];
+            if (
+                largestEarlyFinisherActivity.resource <
+                floatActivitys[i].earlyFinish
+            ) {
+                largestEarlyFinisherActivity = floatActivitys[i];
+                largestEarlyFinish = floatActivitys[i].earlyFinish;
+                index = i;
+            }
+        }
+    }
+    return index;
+}
+
+function burgessResourceLeveling(){
+    var initialRsquare : number = totalRsquare;
+    var latestActivity = floatActivitys[findLatestActivity()]; 
+
+}
+
 async function main() {
     await processInputLineByLine();
     initializeRelationMatrix();
@@ -268,10 +299,10 @@ async function main() {
     await calculateFloat();
     // console.log(allActivitys);
     await initializeCurrentStartAndFinish();
-    var rSquare = calcucateRSquare();
+    totalRsquare = calcucateRSquare();
     //console.log(rSquare);
-    findFloatActivities();
-    console.log(floatActivitys);
+    await findFloatActivities();
+    //console.log(floatActivitys);
 }
 
 main();

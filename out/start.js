@@ -38,6 +38,7 @@ var floatActivitys = new Array();
 var relationMatrix = [[]];
 var activityCount = 0;
 var totalDays = 0;
+var totalRsquare = 0;
 class Activity {
     constructor(name = "", duration = 0, resource = 0, nextActivity = ["END"]) {
         this.name = "";
@@ -265,6 +266,32 @@ function findFloatActivities() {
         }
     });
 }
+function findLatestActivity() {
+    var largestEarlyFinish = 0;
+    var largestEarlyFinisherActivity;
+    var index = 0;
+    for (var i = 0; i < floatActivitys.length; i++) {
+        if (floatActivitys[i].earlyFinish > largestEarlyFinish) {
+            largestEarlyFinish = floatActivitys[i].earlyFinish;
+            index = i;
+            largestEarlyFinisherActivity = floatActivitys[i];
+        }
+        else if (floatActivitys[i].earlyFinish == largestEarlyFinish) {
+            largestEarlyFinisherActivity = floatActivitys[i];
+            if (largestEarlyFinisherActivity.resource <
+                floatActivitys[i].earlyFinish) {
+                largestEarlyFinisherActivity = floatActivitys[i];
+                largestEarlyFinish = floatActivitys[i].earlyFinish;
+                index = i;
+            }
+        }
+    }
+    return index;
+}
+function burgessResourceLeveling() {
+    var initialRsquare = totalRsquare;
+    var latestActivity = floatActivitys[findLatestActivity()];
+}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield processInputLineByLine();
@@ -276,10 +303,10 @@ function main() {
         yield calculateFloat();
         // console.log(allActivitys);
         yield initializeCurrentStartAndFinish();
-        var rSquare = calcucateRSquare();
+        totalRsquare = calcucateRSquare();
         //console.log(rSquare);
-        findFloatActivities();
-        console.log(floatActivitys);
+        yield findFloatActivities();
+        //console.log(floatActivitys);
     });
 }
 main();
