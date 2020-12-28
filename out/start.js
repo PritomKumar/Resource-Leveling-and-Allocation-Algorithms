@@ -23,6 +23,7 @@ const fs_1 = __importDefault(require("fs"));
 const readline = require("readline");
 var allActivitys = new Array();
 var allActivitysCopy = new Array();
+var finalActivities = new Array();
 var floatActivitys = new Array();
 // var relationMatrix: Array<Array<number>>  = [
 //     [0,0,0,0,0,0,0,0,0,0],
@@ -316,19 +317,23 @@ function checkIfActivityIsInFloatActivities(relatedActivity) {
     return false;
 }
 function calculateFloatSpace(latestActivity) {
-    var floatSpace = latestActivity.totalFloat;
+    var floatSpace = latestActivity.lateFinish - latestActivity.currentFinish;
     var originalActivityIndex = stringToNumberConverter(latestActivity.name);
     // console.log("calculateFloatSpace   ");
     // console.log(latestActivity);
     for (var i = 1; i < activityCount - 1; i++) {
-        if (relationMatrix[originalActivityIndex][i] == 1 &&
-            checkIfActivityIsInFloatActivities(allActivitys[i])) {
+        if (relationMatrix[originalActivityIndex][i] == 1
+        //&& checkIfActivityIsInFloatActivities(allActivitys[i])
+        ) {
             floatSpace = Math.min(floatSpace, allActivitys[i].currentStart - latestActivity.currentFinish);
-            console.log("lala   " + floatSpace);
+            if (floatSpace < 0) {
+                floatSpace = 0;
+            }
+            //console.log("lala " + floatSpace);
             // console.log(allActivitys[i]);
         }
     }
-    console.log("final = " + floatSpace);
+    //console.log("final = " + floatSpace);
     return floatSpace;
 }
 function countAvailableFloat() {
@@ -342,8 +347,10 @@ function countAvailableFloat() {
 }
 function burgessResourceLeveling() {
     return __awaiter(this, void 0, void 0, function* () {
+        finalActivities = Object.assign({}, allActivitys);
         for (var l = 0; l < floatActivitys.length; l++) {
             allActivitysCopy = Object.assign({}, allActivitys);
+            console.log("\n\nTesting number =  " + l + "\n\n");
             for (var k = 0; k < floatActivitys.length; k++) {
                 // console.log("count = ");
                 // console.log(counxtAvailableFloat());
@@ -359,19 +366,21 @@ function burgessResourceLeveling() {
                 var originalActivityIndex = stringToNumberConverter(latestActivity.name);
                 //console.log("originalActivityIndex = " + originalActivityIndex);
                 var originalActivity = Object.assign({}, allActivitys[originalActivityIndex]);
-                console.log("original ");
-                console.log(originalActivity);
+                //console.log("original ");
+                //console.log(originalActivity);
                 var floatSpace = calculateFloatSpace(originalActivity);
-                for (var i = 1; i <= floatSpace; i++) {
+                if (floatSpace == 0)
+                    continue;
+                for (var i = 0; i < floatSpace; i++) {
                     allActivitys[originalActivityIndex].currentStart =
-                        originalActivity.currentStart + i;
+                        originalActivity.currentStart + i + 1;
                     allActivitys[originalActivityIndex].currentFinish =
-                        originalActivity.currentFinish + i;
+                        originalActivity.currentFinish + i + 1;
                     calculatedRsquare = calcucateRSquare();
                     console.log(calculatedRsquare);
                     if (calculatedRsquare < initialRsquare) {
                         initialRsquare = calculatedRsquare;
-                        position = i;
+                        position = i + 1;
                     }
                 }
                 allActivitys[originalActivityIndex].currentStart =
@@ -385,9 +394,19 @@ function burgessResourceLeveling() {
                 if (initialRsquare > totalRsquare) {
                     allActivitys = allActivitysCopy;
                 }
+                else {
+                    totalRsquare = initialRsquare;
+                    finalActivities = Object.assign({}, allActivitys);
+                }
             }
+            // if (calcucateRSquare() < totalRsquare) {
+            //     totalRsquare = calcucateRSquare();
+            // }
+            floatActivitys = [];
             yield findFloatActivities();
         }
+        console.log("totalRsquare = " + totalRsquare);
+        console.log(finalActivities);
     });
 }
 function main() {
