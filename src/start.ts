@@ -63,6 +63,7 @@ class Activity {
 async function processInputLineByLine() {
     try {
         // var data = fs.readFileSync("F:\\IIT 8th Semester\\Software Project Management\\Group Assingments\\Project 1\\src\\input.txt", 'utf8');
+        activityCount = 0;
         const fileStream = fs.createReadStream("src\\input.txt", "utf8");
         const rl = readline.createInterface({
             input: fileStream,
@@ -221,8 +222,12 @@ async function calculateLSAndLF() {
 
 async function calculateFloat() {
     for (var i: number = 0; i < activityCount - 1; i++) {
+        // allActivitys[i].totalFloat =
+        //     allActivitys[i].lateStart - allActivitys[i].earlyStart;
         allActivitys[i].totalFloat =
-            allActivitys[i].lateStart - allActivitys[i].earlyStart;
+            allActivitys[i].lateFinish -
+            allActivitys[i].earlyStart -
+            allActivitys[i].duration;
     }
 }
 
@@ -317,7 +322,8 @@ function checkIfActivityIsInFloatActivities(
 }
 
 function calculateFloatSpace(latestActivity: Activity): number {
-    var floatSpace: number = latestActivity.lateFinish - latestActivity.currentFinish;
+    var floatSpace: number =
+        latestActivity.lateFinish - latestActivity.currentFinish;
     var originalActivityIndex: number = stringToNumberConverter(
         latestActivity.name
     );
@@ -331,7 +337,7 @@ function calculateFloatSpace(latestActivity: Activity): number {
         ) {
             floatSpace = Math.min(
                 floatSpace,
-                allActivitys[i].currentStart - latestActivity.currentFinish,
+                allActivitys[i].currentStart - latestActivity.currentFinish
             );
             if (floatSpace < 0) {
                 floatSpace = 0;
@@ -354,6 +360,7 @@ function countAvailableFloat(): number {
 
     return count;
 }
+
 async function burgessResourceLeveling() {
     finalActivities = { ...allActivitys };
     for (var l: number = 0; l < floatActivitys.length; l++) {
@@ -407,8 +414,7 @@ async function burgessResourceLeveling() {
             console.log(allActivitys[originalActivityIndex]);
             if (initialRsquare > totalRsquare) {
                 allActivitys = allActivitysCopy;
-            }
-            else{
+            } else {
                 totalRsquare = initialRsquare;
                 finalActivities = { ...allActivitys };
             }
@@ -421,7 +427,6 @@ async function burgessResourceLeveling() {
     }
     console.log("totalRsquare = " + totalRsquare);
     console.log(finalActivities);
-
 }
 
 async function main() {

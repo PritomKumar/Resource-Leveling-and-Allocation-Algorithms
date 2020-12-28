@@ -75,6 +75,7 @@ function processInputLineByLine() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // var data = fs.readFileSync("F:\\IIT 8th Semester\\Software Project Management\\Group Assingments\\Project 1\\src\\input.txt", 'utf8');
+            activityCount = 0;
             const fileStream = fs_1.default.createReadStream("src\\input.txt", "utf8");
             const rl = readline.createInterface({
                 input: fileStream,
@@ -228,8 +229,12 @@ function calculateLSAndLF() {
 function calculateFloat() {
     return __awaiter(this, void 0, void 0, function* () {
         for (var i = 0; i < activityCount - 1; i++) {
+            // allActivitys[i].totalFloat =
+            //     allActivitys[i].lateStart - allActivitys[i].earlyStart;
             allActivitys[i].totalFloat =
-                allActivitys[i].lateStart - allActivitys[i].earlyStart;
+                allActivitys[i].lateFinish -
+                    allActivitys[i].earlyStart -
+                    allActivitys[i].duration;
         }
     });
 }
