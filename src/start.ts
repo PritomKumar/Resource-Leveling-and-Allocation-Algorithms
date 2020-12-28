@@ -4,8 +4,10 @@ import { isFunctionDeclaration, updateBreak } from "typescript";
 
 const readline = require("readline");
 var allActivitys = new Array<Activity>();
+var originalAllActivitys = new Array<Activity>();
 var allActivitysCopy = new Array<Activity>();
-var finalActivities = new Array<Activity>();
+var finalBurgessActivities = new Array<Activity>();
+var finalEstimatedActivities = new Array<Activity>();
 var floatActivitys = new Array<Activity>();
 // var relationMatrix: Array<Array<number>>  = [
 //     [0,0,0,0,0,0,0,0,0,0],
@@ -362,7 +364,7 @@ function countAvailableFloat(): number {
 }
 
 async function burgessResourceLeveling() {
-    finalActivities = { ...allActivitys };
+    finalBurgessActivities = { ...allActivitys };
     for (var l: number = 0; l < floatActivitys.length; l++) {
         allActivitysCopy = { ...allActivitys };
         console.log("\n\nTesting number =  " + l + "\n\n");
@@ -385,8 +387,8 @@ async function burgessResourceLeveling() {
             //console.log("originalActivityIndex = " + originalActivityIndex);
 
             var originalActivity = { ...allActivitys[originalActivityIndex] };
-            //console.log("original ");
-            //console.log(originalActivity);
+            // console.log("original ");
+            // console.log(originalActivity);
             var floatSpace: number = calculateFloatSpace(originalActivity);
             if (floatSpace == 0) continue;
 
@@ -410,13 +412,13 @@ async function burgessResourceLeveling() {
 
             floatActivitys[latestActivityIndex].currentFinish = -1;
             //calculatedRsquare = calcucateRSquare();
-            console.log("Final Rsquare = " + initialRsquare);
+            console.log("Rsquare = " + initialRsquare);
             console.log(allActivitys[originalActivityIndex]);
             if (initialRsquare > totalRsquare) {
                 allActivitys = allActivitysCopy;
             } else {
                 totalRsquare = initialRsquare;
-                finalActivities = { ...allActivitys };
+                finalBurgessActivities = { ...allActivitys };
             }
         }
         // if (calcucateRSquare() < totalRsquare) {
@@ -426,7 +428,12 @@ async function burgessResourceLeveling() {
         await findFloatActivities();
     }
     console.log("totalRsquare = " + totalRsquare);
-    console.log(finalActivities);
+    console.log(finalBurgessActivities);
+}
+
+async function estimatedResourceLeveling() {
+
+
 }
 
 async function main() {
@@ -442,8 +449,11 @@ async function main() {
     totalRsquare = calcucateRSquare();
     //console.log(totalRsquare);
     await findFloatActivities();
+    originalAllActivitys = {...allActivitys};
     //console.log(floatActivitys);
     await burgessResourceLeveling();
+    await estimatedResourceLeveling();
+
 }
 
 main();

@@ -1,5 +1,3 @@
 "use strict";
-calculatedRsquare = calcucateRSquare();
-console.log(calculatedRsquare);
-conso;
+finalActivities;
 //# sourceMappingURL=tempCodeRunnerFile.js.map
