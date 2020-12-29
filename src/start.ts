@@ -574,49 +574,38 @@ async function estimatedResourceLeveling1() {
     console.log("Rsquare = " + initialRsquare);
 }
 
-async function estimatedResourceLeveling2() {
-    var calculatedRsquare: number = 0;
-    var position: number = 0;
+async function estimatedResourceLeveling2(
+    latestActivity: Activity,
+    array: Array<Array<Activity>>
+) {
+    for (var i: number = 0; i <= latestActivity.totalFloat; i++) {
 
-    var latestActivityIndex: number = findLatestActivity();
-    //console.log("latestActivityIndex = " + latestActivityIndex);
-    var latestActivity = floatActivitys[latestActivityIndex];
-    var originalActivityIndex: number = stringToNumberConverter(
-        latestActivity.name
-    );
-    //console.log("originalActivityIndex = " + originalActivityIndex);
-
-    var originalActivity = { ...allActivitys[originalActivityIndex] };
-    // console.log("original ");
-    // console.log(originalActivity);
-    var floatSpace: number = calculateFloatSpace(originalActivity);
-    //if (floatSpace == 0) continue;
-
-    for (var i: number = 0; i <= floatSpace; i++) {
+        
+        var originalActivityIndex: number = stringToNumberConverter(
+            latestActivity.name
+        );
+        var originalActivity = { ...allActivitys[originalActivityIndex] };
         allActivitys[originalActivityIndex].currentStart =
             originalActivity.currentStart + i;
         allActivitys[originalActivityIndex].currentFinish =
             originalActivity.currentFinish + i;
-        calculatedRsquare = calcucateRSquare();
-        floatActivitys[latestActivityIndex].currentFinish = -1000;
+
+        var newActivityArray = new Array<Array<Activity>>();
+        newActivityArray = { ...array };
+        newActivityArray.push({ ...allActivitys });
+        var calculatedRsquare = calcucateRSquare();
         console.log(calculatedRsquare);
         if (calculatedRsquare < initialRsquare) {
             initialRsquare = calculatedRsquare;
-            // position = i;
-            finalEstimatedActivities = {...allActivitys};
+            console.log("totalRsquare = " + initialRsquare);
+            finalEstimatedActivities = { ...allActivitys };
         }
-        await estimatedResourceLeveling2();
+        for (var j: number = 1; j < activityCount - 1; j++) {
+            if (relationMatrix[originalActivityIndex][j] == 2) {
+                await estimatedResourceLeveling2(allActivitys[j],newActivityArray);
+            }
+        }
     }
-
-    // allActivitys[originalActivityIndex].currentStart =
-    //     originalActivity.currentStart + position;
-    // allActivitys[originalActivityIndex].currentFinish =
-    //     originalActivity.currentFinish + position;
-
-    //calculatedRsquare = calcucateRSquare();
-    console.log("Rsquare = " + initialRsquare);
-    floatActivitys = [];
-    await findFloatActivities();
 }
 
 async function main() {
@@ -636,7 +625,10 @@ async function main() {
     //console.log(floatActivitys);
     //await burgessResourceLeveling();
     allActivitys = { ...originalAllActivitys };
-    await estimatedResourceLeveling2();
+    var latestActivityIndex: number = findLatestActivity();
+    var latestActivity = floatActivitys[latestActivityIndex];
+    var empty = Array<Array<Activity>>();
+    await estimatedResourceLeveling2(latestActivity,empty );
 }
 
 main();
