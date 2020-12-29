@@ -599,6 +599,82 @@ async function estimatedResourceLeveling1() {
 
 async function estimatedResourceLeveling2(
     latestActivity: Activity,
+    array: Array<Array<Activity>>,
+    floatSpace: number
+) {
+    for (
+        var i: number = 0;
+        i <= Math.max(floatSpace, calculateFloatSpace(latestActivity));
+        i++
+    ) {
+        // if (
+        //     calculateFloatSpace(latestActivity) == 0 &&
+        //     floatSpace != calculateFloatSpace(latestActivity)
+        // ) {
+        //     continue;
+        // }
+        // if (latestActivity.currentFinish > latestActivity.lateFinish) {
+        //     continue;
+        // }
+
+        var originalActivityIndex: number = stringToNumberConverter(
+            latestActivity.name
+        );
+        var originalActivity = { ...allActivitys[originalActivityIndex] };
+        allActivitys[originalActivityIndex].currentStart =
+            allActivitys[originalActivityIndex].earlyStart + i;
+        allActivitys[originalActivityIndex].currentFinish =
+            allActivitys[originalActivityIndex].earlyFinish + i;
+
+        // latestActivity.currentStart += 1;
+        // latestActivity.currentFinish += 1;
+
+        var newActivityArray = new Array<Array<Activity>>();
+        newActivityArray = array;
+        newActivityArray.push({ ...allActivitys });
+        //newActivityArray.pop();
+
+        // var calculatedRsquare = calcucateRSquare();
+        // console.log(latestActivity.name);
+        // console.log(
+        //     calculatedRsquare + "  = " + i + " Float space = " + floatSpace
+        // );
+        // if (calculatedRsquare < initialRsquare) {
+        //     initialRsquare = calculatedRsquare;
+        //     console.log("totalRsquare = " + initialRsquare);
+        //     finalEstimatedActivities = { ...allActivitys };
+        // }
+        for (var j: number = 1; j < activityCount - 1; j++) {
+            // for (var j: number = activityCount - 2; j >=1 ; j--) {
+            if (relationMatrix[originalActivityIndex][j] == 2) {
+                await estimatedResourceLeveling2(
+                    allActivitys[j],
+                    newActivityArray,
+                    calculateFloatSpace(allActivitys[j])
+                );
+                // allActivitys[originalActivityIndex] = originalActivity;
+            }
+        }
+    }
+}
+var mega = Array<Array<Activity>>();
+async function result() {
+    for (var i: number = 0; i < mega.length; i++) {
+        var calculatedRsquare = calcucateRSquareParameterVersion(mega[i]);
+        // console.log(
+        //     calculatedRsquare + "  = " + i + " Float space = " + floatSpace
+        // );
+        if (calculatedRsquare < initialRsquare) {
+            initialRsquare = calculatedRsquare;
+            console.log("totalRsquare = " + initialRsquare);
+            finalEstimatedActivities = { ...mega[i] };
+        }
+    }
+}
+
+
+async function estimatedResourceLeveling3(
+    latestActivity: Activity,
     array: Array<Activity>,
     floatSpace: number
 ) {
@@ -668,21 +744,6 @@ async function estimatedResourceLeveling2(
         }
     }
 }
-var mega = Array<Array<Activity>>();
-async function result() {
-    for (var i: number = 0; i < mega.length; i++) {
-        var calculatedRsquare = calcucateRSquareParameterVersion(mega[i]);
-        // console.log(
-        //     calculatedRsquare + "  = " + i + " Float space = " + floatSpace
-        // );
-        if (calculatedRsquare < initialRsquare) {
-            initialRsquare = calculatedRsquare;
-            console.log("totalRsquare = " + initialRsquare);
-            finalEstimatedActivities = { ...mega[i] };
-        }
-    }
-}
-
 async function main() {
     await processInputLineByLine();
     initializeRelationMatrix();
@@ -706,10 +767,10 @@ async function main() {
     for (var i: number = 0; i <= floatActivitys.length; i++) {}
     await estimatedResourceLeveling2(
         allActivitys[activityCount - 2],
-        [],
+        mega,
         calculateFloatSpace(allActivitys[activityCount - 2])
     );
-    // await result();
+   // await result();
     console.log(finalEstimatedActivities);
     console.log("Final Rsquare = " + initialRsquare);
 }
