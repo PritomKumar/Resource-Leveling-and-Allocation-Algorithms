@@ -1,3 +1,3 @@
 "use strict";
-floatSpace;
+console.log(onnoNam.map((a) => `${a.name}_${a.lateFinish}`).join("->"));
 //# sourceMappingURL=tempCodeRunnerFile.js.map

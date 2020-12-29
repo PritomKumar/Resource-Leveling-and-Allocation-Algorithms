@@ -176,6 +176,17 @@ function addRelationToMatrix() {
     }
 }
 
+
+function addRelationToMatrixParameterVersion(copycopy:Activity[]) {
+    for (var i: number = 0; i < activityCount; i++) {
+        var relations = copycopy[i].nextActivity;
+        for (var j: number = 0; j < relations.length; j++) {
+            relationMatrix[i][stringToNumberConverter(relations[j])] = 1;
+            relationMatrix[stringToNumberConverter(relations[j])][i] = 2;
+        }
+    }
+}
+
 async function calculateESAndEF() {
     var earlyStart: number = 0;
     var earlyFinish: number = 0;
@@ -657,21 +668,6 @@ async function estimatedResourceLeveling2(
         }
     }
 }
-var mega = Array<Array<Activity>>();
-async function result() {
-    for (var i: number = 0; i < mega.length; i++) {
-        var calculatedRsquare = calcucateRSquareParameterVersion(mega[i]);
-        // console.log(
-        //     calculatedRsquare + "  = " + i + " Float space = " + floatSpace
-        // );
-        if (calculatedRsquare < initialRsquare) {
-            initialRsquare = calculatedRsquare;
-            console.log("totalRsquare = " + initialRsquare);
-            finalEstimatedActivities = { ...mega[i] };
-        }
-    }
-}
-
 
 async function estimatedResourceLeveling3(
     latestActivity: Activity,
@@ -712,7 +708,7 @@ async function estimatedResourceLeveling3(
 
         //var newActivityArray = new Array<Array<Activity>>();
 
-        var newActivityArray = array.length ? [ ...array ] : Array<Activity>();
+        var newActivityArray = array.length ? [...array] : Array<Activity>();
         //console.log("Kichu = " + newActivityArray);
         newActivityArray.push(latestActivity);
         //newActivityArray.pop();
@@ -722,7 +718,7 @@ async function estimatedResourceLeveling3(
         console.log(
             calculatedRsquare +
                 "  = " +
-                ( i - latestActivity.earlyFinish) +
+                (i - latestActivity.earlyFinish) +
                 " Float space = " +
                 floatSpace
         );
@@ -734,12 +730,182 @@ async function estimatedResourceLeveling3(
         for (var j: number = 1; j < activityCount - 1; j++) {
             // for (var j: number = activityCount - 2; j >=1 ; j--) {
             if (relationMatrix[originalActivityIndex][j] == 2) {
-                await estimatedResourceLeveling2(
+                await estimatedResourceLeveling3(
                     allActivitys[j],
                     newActivityArray,
                     calculateFloatSpace(allActivitys[j])
                 );
                 // allActivitys[originalActivityIndex] = originalActivity;
+            }
+        }
+    }
+}
+
+function checkIfValidActivity(AldlActivitys: Array<Activity>): boolean {
+    addRelationToMatrixParameterVersion(AldlActivitys);
+    for (var i: number = 1; i < activityCount - 1; i++) {
+        for (var j: number = 1; j < activityCount - 1; j++) {
+            if (relationMatrix[i][j] == 1) {
+                if (
+                    AldlActivitys[i].currentFinish >
+                    AldlActivitys[j].currentStart
+                ) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+var megaActivies = Array<Array<Activity>>();
+
+async function resultCalculation() {
+    // for (var i: number = 0; i < 10; i++) {
+    //     console.log(
+    //         megaActivies[i].map((a) => `${a.name}_${a.currentStart}`).join("->")
+    //     );
+    // }
+    // console.log("llala");
+    // for (
+    //     var i: number = megaActivies.length - 10;
+    //     i < megaActivies.length;
+    //     i++
+    // ) {
+    //     console.log(
+    //         megaActivies[i].map((a) => `${a.name}_${a.currentStart}`).join("->")
+    //     );
+    // }
+    
+    for (var i: number = 0; i < megaActivies.length; i++) {
+        if (!checkIfValidActivity(megaActivies[i])) {
+            continue;
+        }
+        var calculatedRsquare = calcucateRSquareParameterVersion(
+            megaActivies[i]
+        );
+        //console.log("calculatedRsquare  " + calculatedRsquare);
+        // console.log(
+        //     calculatedRsquare + "  = " + i + " Float space = " + floatSpace
+        // );
+        if (calculatedRsquare < initialRsquare) {
+            initialRsquare = calculatedRsquare;
+            console.log("totalRsquare = " + initialRsquare);
+            finalEstimatedActivities = [...megaActivies[i]];
+        }
+    }
+}
+
+async function estimatedResourceLeveling4() {
+    await findFloatActivities();
+    //console.log(allActivitys);
+
+    var onnoNam = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
+    console.log(onnoNam.map((a) => `${a.name}_${a.lateFinish}`).join("->"));
+    megaActivies.push([...onnoNam]);
+    //console.log(megaActivies);
+    //var newOriginalActivities = { ...onnoNam };
+    for (var k: number = onnoNam.length - 1; k >= 0; k--) {
+        if (onnoNam[k].lateFinish == Infinity) {
+            continue;
+        }
+        var tempArray = [...megaActivies];
+        for (var i: number = 0; i < megaActivies.length; i++) {
+            //console.log("3rd for ");
+            for (var j: number = 0; j <= onnoNam[k].totalFloat; j++) {
+                //console.log("4th for ");
+                //console.log(tempActivityArray[k].name);
+                var tempActivityArray = [...megaActivies[i]];
+                tempActivityArray[k].currentStart =
+                    tempActivityArray[k].earlyStart + j;
+                tempActivityArray[k].currentFinish =
+                    tempActivityArray[k].earlyFinish + j;
+                console.log(
+                    tempActivityArray
+                        .map((a) => `${a.name}_${a.lateFinish}`)
+                        .join("->")
+                );
+                if (checkIfValidActivity(tempActivityArray)) {
+                    var calculatedRsquare = calcucateRSquareParameterVersion(
+                        tempActivityArray
+                    );
+                    if (calculatedRsquare < initialRsquare) {
+                        initialRsquare = calculatedRsquare;
+                        console.log("totalRsquare = " + initialRsquare);
+                        finalEstimatedActivities = [...megaActivies[i]];
+                    }
+                    tempArray.push([...tempActivityArray]);
+                }
+            }
+        }
+        megaActivies = [...tempArray];
+        console.log(megaActivies.length + "  " + onnoNam[k].name);
+        // console.log(megaActivies[megaActivies.length-1].map(a=>`${a.name}_${a.currentStart}`).join("->"));
+        //console.log(megaActivies);
+    }
+    //console.log(megaActivies);
+}
+
+async function estimatedResourceLeveling6() {
+    var onnoNam = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
+    for (var i: number = 0; i < onnoNam.length; i++) {
+        if (onnoNam[i].lateFinish == Infinity) {
+            continue;
+        }
+        var arr = megaActivies.length ? [...megaActivies] : [];
+        for (var j = 0; j <= onnoNam[i].totalFloat; j++) {
+            var temp = { ...onnoNam[i] };
+            temp.currentStart = temp.earlyStart + j;
+            temp.currentFinish = temp.earlyFinish + j;
+            
+            for (var k = 0; k < megaActivies.length; k++) {
+                var copycopy = megaActivies[k].length
+                    ? [...megaActivies[k]]
+                    : [];
+                copycopy.push(temp);
+                if(checkIfValidActivity(copycopy)){
+break;
+                };
+                arr.push(copycopy);
+
+                // arr.splice(k); //Vejall
+
+                arr = arr.filter((a) => a !== megaActivies[k]);
+            }
+            if (!arr.length) {
+                arr.push([temp]);
+            }
+        }
+        console.log(megaActivies.length + "  " + onnoNam[i].name);
+        megaActivies = arr;
+    }
+}
+
+var combinationArray = Array<Array<number>>();
+
+async function estimatedResourceLeveling5() {
+    await findFloatActivities();
+    megaActivies.push({ ...allActivitys });
+    //var newOriginalActivities = { ...allActivitys };
+    for (var k: number = 0; k < floatActivitys.length; k++) {
+        var latestActivityIndex: number = findLatestActivity();
+        var latestActivity = { ...floatActivitys[latestActivityIndex] };
+        floatActivitys[latestActivityIndex].currentFinish = -1000;
+        var activityArray = Array<Array<Activity>>();
+        var originalActivityIndex: number = stringToNumberConverter(
+            latestActivity.name
+        );
+
+        for (var i: number = 0; i < megaActivies.length; i++) {
+            var tempActivityArray = { ...megaActivies[i] };
+            for (var j: number = 0; j <= latestActivity.totalFloat; j++) {
+                tempActivityArray[originalActivityIndex].currentStart =
+                    tempActivityArray[originalActivityIndex].earlyStart + j;
+                tempActivityArray[originalActivityIndex].currentFinish =
+                    tempActivityArray[originalActivityIndex].earlyFinish + j;
+                if (checkIfValidActivity(tempActivityArray)) {
+                    megaActivies.push({ ...tempActivityArray });
+                }
             }
         }
     }
@@ -757,21 +923,28 @@ async function main() {
     totalRsquare = calcucateRSquare();
     //console.log(totalRsquare);
     await findFloatActivities();
-    originalAllActivitys = { ...allActivitys };
+    originalAllActivitys = [...allActivitys];
     //console.log(floatActivitys);
-    //await burgessResourceLeveling();
-    allActivitys = { ...originalAllActivitys };
+    // await burgessResourceLeveling();
+    allActivitys = [...originalAllActivitys];
     var latestActivityIndex: number = findLatestActivity();
     var latestActivity = floatActivitys[latestActivityIndex];
 
     for (var i: number = 0; i <= floatActivitys.length; i++) {}
-    await estimatedResourceLeveling2(
-        allActivitys[activityCount - 2],
-        mega,
-        calculateFloatSpace(allActivitys[activityCount - 2])
+    // await estimatedResourceLeveling2(
+    //     allActivitys[activityCount - 2],
+    //     megaActivies,
+    //     calculateFloatSpace(allActivitys[activityCount - 2])
+    // );
+    // await resultCalculation();
+    //await estimatedResourceLeveling4();
+    await estimatedResourceLeveling6();
+    await resultCalculation();
+    console.log(
+        finalEstimatedActivities
+            .map((a) => `${a.name}_${a.currentStart}`)
+            .join("->")
     );
-   // await result();
-    console.log(finalEstimatedActivities);
     console.log("Final Rsquare = " + initialRsquare);
 }
 

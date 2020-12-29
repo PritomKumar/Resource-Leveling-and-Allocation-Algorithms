@@ -186,6 +186,15 @@ function addRelationToMatrix() {
         }
     }
 }
+function addRelationToMatrixParameterVersion(copycopy) {
+    for (var i = 0; i < activityCount; i++) {
+        var relations = copycopy[i].nextActivity;
+        for (var j = 0; j < relations.length; j++) {
+            relationMatrix[i][stringToNumberConverter(relations[j])] = 1;
+            relationMatrix[stringToNumberConverter(relations[j])][i] = 2;
+        }
+    }
+}
 function calculateESAndEF() {
     return __awaiter(this, void 0, void 0, function* () {
         var earlyStart = 0;
@@ -585,22 +594,6 @@ function estimatedResourceLeveling2(latestActivity, array, floatSpace) {
         }
     });
 }
-var mega = Array();
-function result() {
-    return __awaiter(this, void 0, void 0, function* () {
-        for (var i = 0; i < mega.length; i++) {
-            var calculatedRsquare = calcucateRSquareParameterVersion(mega[i]);
-            // console.log(
-            //     calculatedRsquare + "  = " + i + " Float space = " + floatSpace
-            // );
-            if (calculatedRsquare < initialRsquare) {
-                initialRsquare = calculatedRsquare;
-                console.log("totalRsquare = " + initialRsquare);
-                finalEstimatedActivities = Object.assign({}, mega[i]);
-            }
-        }
-    });
-}
 function estimatedResourceLeveling3(latestActivity, array, floatSpace) {
     return __awaiter(this, void 0, void 0, function* () {
         for (var i = latestActivity.currentFinish; i <= latestActivity.earlyFinish + latestActivity.totalFloat &&
@@ -646,8 +639,164 @@ function estimatedResourceLeveling3(latestActivity, array, floatSpace) {
             for (var j = 1; j < activityCount - 1; j++) {
                 // for (var j: number = activityCount - 2; j >=1 ; j--) {
                 if (relationMatrix[originalActivityIndex][j] == 2) {
-                    yield estimatedResourceLeveling2(allActivitys[j], newActivityArray, calculateFloatSpace(allActivitys[j]));
+                    yield estimatedResourceLeveling3(allActivitys[j], newActivityArray, calculateFloatSpace(allActivitys[j]));
                     // allActivitys[originalActivityIndex] = originalActivity;
+                }
+            }
+        }
+    });
+}
+function checkIfValidActivity(AldlActivitys) {
+    addRelationToMatrixParameterVersion(AldlActivitys);
+    for (var i = 1; i < activityCount - 1; i++) {
+        for (var j = 1; j < activityCount - 1; j++) {
+            if (relationMatrix[i][j] == 1) {
+                if (AldlActivitys[i].currentFinish >
+                    AldlActivitys[j].currentStart) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+var megaActivies = Array();
+function resultCalculation() {
+    return __awaiter(this, void 0, void 0, function* () {
+        // for (var i: number = 0; i < 10; i++) {
+        //     console.log(
+        //         megaActivies[i].map((a) => `${a.name}_${a.currentStart}`).join("->")
+        //     );
+        // }
+        // console.log("llala");
+        // for (
+        //     var i: number = megaActivies.length - 10;
+        //     i < megaActivies.length;
+        //     i++
+        // ) {
+        //     console.log(
+        //         megaActivies[i].map((a) => `${a.name}_${a.currentStart}`).join("->")
+        //     );
+        // }
+        for (var i = 0; i < megaActivies.length; i++) {
+            if (!checkIfValidActivity(megaActivies[i])) {
+                continue;
+            }
+            var calculatedRsquare = calcucateRSquareParameterVersion(megaActivies[i]);
+            //console.log("calculatedRsquare  " + calculatedRsquare);
+            // console.log(
+            //     calculatedRsquare + "  = " + i + " Float space = " + floatSpace
+            // );
+            if (calculatedRsquare < initialRsquare) {
+                initialRsquare = calculatedRsquare;
+                console.log("totalRsquare = " + initialRsquare);
+                finalEstimatedActivities = [...megaActivies[i]];
+            }
+        }
+    });
+}
+function estimatedResourceLeveling4() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield findFloatActivities();
+        //console.log(allActivitys);
+        var onnoNam = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
+        console.log(onnoNam.map((a) => `${a.name}_${a.lateFinish}`).join("->"));
+        megaActivies.push([...onnoNam]);
+        //console.log(megaActivies);
+        //var newOriginalActivities = { ...onnoNam };
+        for (var k = onnoNam.length - 1; k >= 0; k--) {
+            if (onnoNam[k].lateFinish == Infinity) {
+                continue;
+            }
+            var tempArray = [...megaActivies];
+            for (var i = 0; i < megaActivies.length; i++) {
+                //console.log("3rd for ");
+                for (var j = 0; j <= onnoNam[k].totalFloat; j++) {
+                    //console.log("4th for ");
+                    //console.log(tempActivityArray[k].name);
+                    var tempActivityArray = [...megaActivies[i]];
+                    tempActivityArray[k].currentStart =
+                        tempActivityArray[k].earlyStart + j;
+                    tempActivityArray[k].currentFinish =
+                        tempActivityArray[k].earlyFinish + j;
+                    console.log(tempActivityArray
+                        .map((a) => `${a.name}_${a.lateFinish}`)
+                        .join("->"));
+                    if (checkIfValidActivity(tempActivityArray)) {
+                        var calculatedRsquare = calcucateRSquareParameterVersion(tempActivityArray);
+                        if (calculatedRsquare < initialRsquare) {
+                            initialRsquare = calculatedRsquare;
+                            console.log("totalRsquare = " + initialRsquare);
+                            finalEstimatedActivities = [...megaActivies[i]];
+                        }
+                        tempArray.push([...tempActivityArray]);
+                    }
+                }
+            }
+            megaActivies = [...tempArray];
+            console.log(megaActivies.length + "  " + onnoNam[k].name);
+            // console.log(megaActivies[megaActivies.length-1].map(a=>`${a.name}_${a.currentStart}`).join("->"));
+            //console.log(megaActivies);
+        }
+        //console.log(megaActivies);
+    });
+}
+function estimatedResourceLeveling6() {
+    return __awaiter(this, void 0, void 0, function* () {
+        var onnoNam = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
+        for (var i = 0; i < onnoNam.length; i++) {
+            if (onnoNam[i].lateFinish == Infinity) {
+                continue;
+            }
+            var arr = megaActivies.length ? [...megaActivies] : [];
+            for (var j = 0; j <= onnoNam[i].totalFloat; j++) {
+                var temp = Object.assign({}, onnoNam[i]);
+                temp.currentStart = temp.earlyStart + j;
+                temp.currentFinish = temp.earlyFinish + j;
+                for (var k = 0; k < megaActivies.length; k++) {
+                    var copycopy = megaActivies[k].length
+                        ? [...megaActivies[k]]
+                        : [];
+                    copycopy.push(temp);
+                    if (checkIfValidActivity(copycopy)) {
+                        break;
+                    }
+                    ;
+                    arr.push(copycopy);
+                    // arr.splice(k); //Vejall
+                    arr = arr.filter((a) => a !== megaActivies[k]);
+                }
+                if (!arr.length) {
+                    arr.push([temp]);
+                }
+            }
+            console.log(megaActivies.length + "  " + onnoNam[i].name);
+            megaActivies = arr;
+        }
+    });
+}
+var combinationArray = Array();
+function estimatedResourceLeveling5() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield findFloatActivities();
+        megaActivies.push(Object.assign({}, allActivitys));
+        //var newOriginalActivities = { ...allActivitys };
+        for (var k = 0; k < floatActivitys.length; k++) {
+            var latestActivityIndex = findLatestActivity();
+            var latestActivity = Object.assign({}, floatActivitys[latestActivityIndex]);
+            floatActivitys[latestActivityIndex].currentFinish = -1000;
+            var activityArray = Array();
+            var originalActivityIndex = stringToNumberConverter(latestActivity.name);
+            for (var i = 0; i < megaActivies.length; i++) {
+                var tempActivityArray = Object.assign({}, megaActivies[i]);
+                for (var j = 0; j <= latestActivity.totalFloat; j++) {
+                    tempActivityArray[originalActivityIndex].currentStart =
+                        tempActivityArray[originalActivityIndex].earlyStart + j;
+                    tempActivityArray[originalActivityIndex].currentFinish =
+                        tempActivityArray[originalActivityIndex].earlyFinish + j;
+                    if (checkIfValidActivity(tempActivityArray)) {
+                        megaActivies.push(Object.assign({}, tempActivityArray));
+                    }
                 }
             }
         }
@@ -667,16 +816,25 @@ function main() {
         totalRsquare = calcucateRSquare();
         //console.log(totalRsquare);
         yield findFloatActivities();
-        originalAllActivitys = Object.assign({}, allActivitys);
+        originalAllActivitys = [...allActivitys];
         //console.log(floatActivitys);
-        //await burgessResourceLeveling();
-        allActivitys = Object.assign({}, originalAllActivitys);
+        // await burgessResourceLeveling();
+        allActivitys = [...originalAllActivitys];
         var latestActivityIndex = findLatestActivity();
         var latestActivity = floatActivitys[latestActivityIndex];
         for (var i = 0; i <= floatActivitys.length; i++) { }
-        yield estimatedResourceLeveling2(allActivitys[activityCount - 2], mega, calculateFloatSpace(allActivitys[activityCount - 2]));
-        // await result();
-        console.log(finalEstimatedActivities);
+        // await estimatedResourceLeveling2(
+        //     allActivitys[activityCount - 2],
+        //     megaActivies,
+        //     calculateFloatSpace(allActivitys[activityCount - 2])
+        // );
+        // await resultCalculation();
+        //await estimatedResourceLeveling4();
+        yield estimatedResourceLeveling6();
+        yield resultCalculation();
+        console.log(finalEstimatedActivities
+            .map((a) => `${a.name}_${a.currentStart}`)
+            .join("->"));
         console.log("Final Rsquare = " + initialRsquare);
     });
 }
