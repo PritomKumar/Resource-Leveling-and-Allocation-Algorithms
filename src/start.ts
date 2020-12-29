@@ -431,9 +431,192 @@ async function burgessResourceLeveling() {
     console.log(finalBurgessActivities);
 }
 
-async function estimatedResourceLeveling() {
+var initialRsquare: number = Infinity;
 
+async function estimatedResourceLeveling1() {
+    var calculatedRsquare: number = 0;
+    var position: number = 0;
 
+    var latestActivityIndex: number = findLatestActivity();
+    //console.log("latestActivityIndex = " + latestActivityIndex);
+    var latestActivity = floatActivitys[latestActivityIndex];
+    var originalActivityIndex: number = stringToNumberConverter(
+        latestActivity.name
+    );
+    //console.log("originalActivityIndex = " + originalActivityIndex);
+
+    var originalActivity = { ...allActivitys[originalActivityIndex] };
+    // console.log("original ");
+    // console.log(originalActivity);
+    var floatSpace: number = calculateFloatSpace(originalActivity);
+    //if (floatSpace == 0) continue;
+
+    for (var i: number = 0; i <= floatSpace; i++) {
+        allActivitys[originalActivityIndex].currentStart =
+            originalActivity.currentStart + i;
+        allActivitys[originalActivityIndex].currentFinish =
+            originalActivity.currentFinish + i;
+        floatActivitys[latestActivityIndex].currentFinish = -1000;
+        for (var j: number = 0; j <= floatSpace; j++) {
+            var latestActivityIndex: number = findLatestActivity();
+            //console.log("latestActivityIndex = " + latestActivityIndex);
+            var latestActivity = floatActivitys[latestActivityIndex];
+            var originalActivityIndex: number = stringToNumberConverter(
+                latestActivity.name
+            );
+            allActivitys[originalActivityIndex].currentStart =
+                originalActivity.currentStart + j;
+            allActivitys[originalActivityIndex].currentFinish =
+                originalActivity.currentFinish + j;
+            floatActivitys[latestActivityIndex].currentFinish = -1000;
+            for (var k: number = 0; k <= floatSpace; k++) {
+                var latestActivityIndex: number = findLatestActivity();
+                //console.log("latestActivityIndex = " + latestActivityIndex);
+                var latestActivity = floatActivitys[latestActivityIndex];
+                var originalActivityIndex: number = stringToNumberConverter(
+                    latestActivity.name
+                );
+                allActivitys[originalActivityIndex].currentStart =
+                    originalActivity.currentStart + k;
+                allActivitys[originalActivityIndex].currentFinish =
+                    originalActivity.currentFinish + k;
+                floatActivitys[latestActivityIndex].currentFinish = -1000;
+                for (var l: number = 0; l <= floatSpace; l++) {
+                    var latestActivityIndex: number = findLatestActivity();
+                    //console.log("latestActivityIndex = " + latestActivityIndex);
+                    var latestActivity = floatActivitys[latestActivityIndex];
+                    var originalActivityIndex: number = stringToNumberConverter(
+                        latestActivity.name
+                    );
+                    allActivitys[originalActivityIndex].currentStart =
+                        originalActivity.currentStart + l;
+                    allActivitys[originalActivityIndex].currentFinish =
+                        originalActivity.currentFinish + l;
+                    floatActivitys[latestActivityIndex].currentFinish = -1000;
+                    for (var m: number = 0; m <= floatSpace; m++) {
+                        var latestActivityIndex: number = findLatestActivity();
+                        //console.log("latestActivityIndex = " + latestActivityIndex);
+                        var latestActivity =
+                            floatActivitys[latestActivityIndex];
+                        var originalActivityIndex: number = stringToNumberConverter(
+                            latestActivity.name
+                        );
+                        allActivitys[originalActivityIndex].currentStart =
+                            originalActivity.currentStart + m;
+                        allActivitys[originalActivityIndex].currentFinish =
+                            originalActivity.currentFinish + m;
+                        floatActivitys[
+                            latestActivityIndex
+                        ].currentFinish = -1000;
+                        for (var n: number = 0; n <= floatSpace; n++) {
+                            var latestActivityIndex: number = findLatestActivity();
+                            //console.log("latestActivityIndex = " + latestActivityIndex);
+                            var latestActivity =
+                                floatActivitys[latestActivityIndex];
+                            var originalActivityIndex: number = stringToNumberConverter(
+                                latestActivity.name
+                            );
+                            allActivitys[originalActivityIndex].currentStart =
+                                originalActivity.currentStart + n;
+                            allActivitys[originalActivityIndex].currentFinish =
+                                originalActivity.currentFinish + n;
+                            floatActivitys[
+                                latestActivityIndex
+                            ].currentFinish = -1000;
+                            for (var o: number = 0; o <= floatSpace; o++) {
+                                var latestActivityIndex: number = findLatestActivity();
+                                //console.log("latestActivityIndex = " + latestActivityIndex);
+                                var latestActivity =
+                                    floatActivitys[latestActivityIndex];
+                                var originalActivityIndex: number = stringToNumberConverter(
+                                    latestActivity.name
+                                );
+                                allActivitys[
+                                    originalActivityIndex
+                                ].currentStart =
+                                    originalActivity.currentStart + o;
+                                allActivitys[
+                                    originalActivityIndex
+                                ].currentFinish =
+                                    originalActivity.currentFinish + o;
+                                calculatedRsquare = calcucateRSquare();
+                                floatActivitys[
+                                    latestActivityIndex
+                                ].currentFinish = -1000;
+                                calculatedRsquare = calcucateRSquare();
+                                console.log(calculatedRsquare);
+                                if (calculatedRsquare < initialRsquare) {
+                                    initialRsquare = calculatedRsquare;
+                                    console.log(
+                                        "Initial Rsquare = " + initialRsquare
+                                    );
+                                    finalEstimatedActivities = {
+                                        ...allActivitys,
+                                    };
+                                }
+                                floatActivitys = [];
+                                await findFloatActivities();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    allActivitys[originalActivityIndex].currentStart =
+        originalActivity.currentStart + position;
+    allActivitys[originalActivityIndex].currentFinish =
+        originalActivity.currentFinish + position;
+
+    floatActivitys[latestActivityIndex].currentFinish = -1;
+    //calculatedRsquare = calcucateRSquare();
+    console.log("Rsquare = " + initialRsquare);
+}
+
+async function estimatedResourceLeveling2() {
+    var calculatedRsquare: number = 0;
+    var position: number = 0;
+
+    var latestActivityIndex: number = findLatestActivity();
+    //console.log("latestActivityIndex = " + latestActivityIndex);
+    var latestActivity = floatActivitys[latestActivityIndex];
+    var originalActivityIndex: number = stringToNumberConverter(
+        latestActivity.name
+    );
+    //console.log("originalActivityIndex = " + originalActivityIndex);
+
+    var originalActivity = { ...allActivitys[originalActivityIndex] };
+    // console.log("original ");
+    // console.log(originalActivity);
+    var floatSpace: number = calculateFloatSpace(originalActivity);
+    //if (floatSpace == 0) continue;
+
+    for (var i: number = 0; i <= floatSpace; i++) {
+        allActivitys[originalActivityIndex].currentStart =
+            originalActivity.currentStart + i;
+        allActivitys[originalActivityIndex].currentFinish =
+            originalActivity.currentFinish + i;
+        calculatedRsquare = calcucateRSquare();
+        floatActivitys[latestActivityIndex].currentFinish = -1000;
+        console.log(calculatedRsquare);
+        if (calculatedRsquare < initialRsquare) {
+            initialRsquare = calculatedRsquare;
+            // position = i;
+            finalEstimatedActivities = {...allActivitys};
+        }
+        await estimatedResourceLeveling2();
+    }
+
+    // allActivitys[originalActivityIndex].currentStart =
+    //     originalActivity.currentStart + position;
+    // allActivitys[originalActivityIndex].currentFinish =
+    //     originalActivity.currentFinish + position;
+
+    //calculatedRsquare = calcucateRSquare();
+    console.log("Rsquare = " + initialRsquare);
+    floatActivitys = [];
+    await findFloatActivities();
 }
 
 async function main() {
@@ -449,11 +632,11 @@ async function main() {
     totalRsquare = calcucateRSquare();
     //console.log(totalRsquare);
     await findFloatActivities();
-    originalAllActivitys = {...allActivitys};
+    originalAllActivitys = { ...allActivitys };
     //console.log(floatActivitys);
-    await burgessResourceLeveling();
-    await estimatedResourceLeveling();
-
+    //await burgessResourceLeveling();
+    allActivitys = { ...originalAllActivitys };
+    await estimatedResourceLeveling2();
 }
 
 main();
