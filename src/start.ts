@@ -261,6 +261,29 @@ function calcucateRSquare(): number {
     return rSquareTotal;
 }
 
+function calcucateRSquareParameterVersion(
+    AllActivitys: Array<Activity>
+): number {
+    var rSquareTotal: number = 0;
+    for (var i: number = 1; i <= totalDays; i++) {
+        var rSquare: number = 0;
+        var r: number = 0;
+        for (var j: number = 1; j < activityCount - 1; j++) {
+            if (
+                AllActivitys[j].currentStart < i &&
+                AllActivitys[j].currentFinish >= i
+            ) {
+                r += AllActivitys[j].resource;
+                //console.log( r + " +  ");
+            }
+        }
+        //console.log(i + "   " + r);
+        rSquare = r * r;
+        rSquareTotal += rSquare;
+    }
+    return rSquareTotal;
+}
+
 async function findFloatActivities() {
     for (var i: number = 1; i < activityCount - 1; i++) {
         if (allActivitys[i].totalFloat > 0) {
@@ -576,34 +599,86 @@ async function estimatedResourceLeveling1() {
 
 async function estimatedResourceLeveling2(
     latestActivity: Activity,
-    array: Array<Array<Activity>>
+    array: Array<Activity>,
+    floatSpace: number
 ) {
-    for (var i: number = 0; i <= latestActivity.totalFloat; i++) {
+    for (
+        var i: number = latestActivity.currentFinish;
+        i <= latestActivity.earlyFinish + latestActivity.totalFloat &&
+        (!array.length || i < array[array.length - 1].currentStart);
+        i++
+    ) {
+        // if (
+        //     calculateFloatSpace(latestActivity) == 0 &&
+        //     floatSpace != calculateFloatSpace(latestActivity)
+        // ) {
+        //     continue;
+        // }
+        // if (latestActivity.currentFinish > latestActivity.lateFinish) {
+        //     continue;
+        // }
 
-        
         var originalActivityIndex: number = stringToNumberConverter(
             latestActivity.name
         );
         var originalActivity = { ...allActivitys[originalActivityIndex] };
         allActivitys[originalActivityIndex].currentStart =
-            originalActivity.currentStart + i;
+            allActivitys[originalActivityIndex].earlyStart +
+            i -
+            latestActivity.currentFinish;
         allActivitys[originalActivityIndex].currentFinish =
-            originalActivity.currentFinish + i;
+            allActivitys[originalActivityIndex].earlyFinish +
+            i -
+            latestActivity.currentFinish;
 
-        var newActivityArray = new Array<Array<Activity>>();
-        newActivityArray = { ...array };
-        newActivityArray.push({ ...allActivitys });
+        // latestActivity.currentStart += 1;
+        // latestActivity.currentFinish += 1;
+
+        //var newActivityArray = new Array<Array<Activity>>();
+
+        var newActivityArray = array.length ? [ ...array ] : Array<Activity>();
+        //console.log("Kichu = " + newActivityArray);
+        newActivityArray.push(latestActivity);
+        //newActivityArray.pop();
+
         var calculatedRsquare = calcucateRSquare();
-        console.log(calculatedRsquare);
+        console.log(latestActivity.name);
+        console.log(
+            calculatedRsquare +
+                "  = " +
+                ( i - latestActivity.earlyFinish) +
+                " Float space = " +
+                floatSpace
+        );
         if (calculatedRsquare < initialRsquare) {
             initialRsquare = calculatedRsquare;
             console.log("totalRsquare = " + initialRsquare);
             finalEstimatedActivities = { ...allActivitys };
         }
         for (var j: number = 1; j < activityCount - 1; j++) {
+            // for (var j: number = activityCount - 2; j >=1 ; j--) {
             if (relationMatrix[originalActivityIndex][j] == 2) {
-                await estimatedResourceLeveling2(allActivitys[j],newActivityArray);
+                await estimatedResourceLeveling2(
+                    allActivitys[j],
+                    newActivityArray,
+                    calculateFloatSpace(allActivitys[j])
+                );
+                // allActivitys[originalActivityIndex] = originalActivity;
             }
+        }
+    }
+}
+var mega = Array<Array<Activity>>();
+async function result() {
+    for (var i: number = 0; i < mega.length; i++) {
+        var calculatedRsquare = calcucateRSquareParameterVersion(mega[i]);
+        // console.log(
+        //     calculatedRsquare + "  = " + i + " Float space = " + floatSpace
+        // );
+        if (calculatedRsquare < initialRsquare) {
+            initialRsquare = calculatedRsquare;
+            console.log("totalRsquare = " + initialRsquare);
+            finalEstimatedActivities = { ...mega[i] };
         }
     }
 }
@@ -627,8 +702,16 @@ async function main() {
     allActivitys = { ...originalAllActivitys };
     var latestActivityIndex: number = findLatestActivity();
     var latestActivity = floatActivitys[latestActivityIndex];
-    var empty = Array<Array<Activity>>();
-    await estimatedResourceLeveling2(latestActivity,empty );
+
+    for (var i: number = 0; i <= floatActivitys.length; i++) {}
+    await estimatedResourceLeveling2(
+        allActivitys[activityCount - 2],
+        [],
+        calculateFloatSpace(allActivitys[activityCount - 2])
+    );
+    // await result();
+    console.log(finalEstimatedActivities);
+    console.log("Final Rsquare = " + initialRsquare);
 }
 
 main();
