@@ -401,9 +401,9 @@ function countAvailableFloat(): number {
 }
 
 async function burgessResourceLeveling() {
-    finalBurgessActivities = { ...allActivitys };
+    finalBurgessActivities = [ ...allActivitys ];
     for (var l: number = 0; l < floatActivitys.length; l++) {
-        allActivitysCopy = { ...allActivitys };
+        allActivitysCopy = [ ...allActivitys ];
         console.log("\n\nTesting number =  " + l + "\n\n");
         for (var k: number = 0; k < floatActivitys.length; k++) {
             // console.log("count = ");
@@ -449,13 +449,13 @@ async function burgessResourceLeveling() {
 
             floatActivitys[latestActivityIndex].currentFinish = -1;
             //calculatedRsquare = calcucateRSquare();
-            console.log("Rsquare = " + initialRsquare);
-            console.log(allActivitys[originalActivityIndex]);
+            //console.log("Rsquare = " + initialRsquare);
+           // console.log(allActivitys[originalActivityIndex]);
             if (initialRsquare > totalRsquare) {
                 allActivitys = allActivitysCopy;
             } else {
                 totalRsquare = initialRsquare;
-                finalBurgessActivities = { ...allActivitys };
+                finalBurgessActivities = [ ...allActivitys ];
             }
         }
         // if (calcucateRSquare() < totalRsquare) {
@@ -464,8 +464,8 @@ async function burgessResourceLeveling() {
         floatActivitys = [];
         await findFloatActivities();
     }
-    console.log("totalRsquare = " + totalRsquare);
-    console.log(finalBurgessActivities);
+    //console.log("totalRsquare = " + totalRsquare);
+    //console.log(finalBurgessActivities);
 }
 
 var initialRsquare: number = Infinity;
@@ -914,9 +914,17 @@ async function estimatedResourceLeveling7() {
                     ? [...megaActivies[k]]
                     : [];
                 copycopy.push(temp);
-                // if (checkIfValidActivity(copycopy)) {
-                //     break;
-                // }
+                if (checkIfValidActivity(copycopy)) {
+                    break;
+                }
+                var calculatedRsquare = calcucateRSquareParameterVersion(
+                    copycopy
+                );
+                if (calculatedRsquare < initialRsquare) {
+                    initialRsquare = calculatedRsquare;
+                    console.log("totalRsquare = " + initialRsquare);
+                    finalEstimatedActivities = [...copycopy];
+                }
                 arr.push(copycopy);
 
                 // arr.splice(k); //Vejall
@@ -984,8 +992,8 @@ async function main() {
     );
     console.log("Final Rsquare for burgess = " + totalRsquare);
     allActivitys = [...originalAllActivitys];
-    var latestActivityIndex: number = findLatestActivity();
-
+    
+    // var latestActivityIndex: number = findLatestActivity();
     // await estimatedResourceLeveling2(
     //     allActivitys[activityCount - 2],
     //     megaActivies,
@@ -993,8 +1001,9 @@ async function main() {
     // );
     // await resultCalculation();
     //await estimatedResourceLeveling4();
-    await estimatedResourceLeveling6();
-    await resultCalculation();
+    // await estimatedResourceLeveling6();
+    // await resultCalculation();
+    await estimatedResourceLeveling7();
     console.log(
         finalEstimatedActivities
             .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
