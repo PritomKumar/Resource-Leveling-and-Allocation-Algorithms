@@ -21,6 +21,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const readline = require("readline");
+var megaActivies = Array();
 var allActivitys = new Array();
 var originalAllActivitys = new Array();
 var allActivitysCopy = new Array();
@@ -190,8 +191,12 @@ function addRelationToMatrixParameterVersion(copycopy) {
     for (var i = 0; i < copycopy.length; i++) {
         var relations = copycopy[i].nextActivity;
         for (var j = 0; j < relations.length; j++) {
-            relationMatrix[i][stringToNumberConverter(relations[j])] = 1;
-            relationMatrix[stringToNumberConverter(relations[j])][i] = 2;
+            for (var k = 0; k < copycopy.length; k++) {
+                if (copycopy[k].name == copycopy[i].nextActivity[j]) {
+                    relationMatrix[i][k] = 1;
+                    relationMatrix[k][i] = 2;
+                }
+            }
         }
     }
 }
@@ -280,7 +285,7 @@ function calcucateRSquareParameterVersion(AllActivitys) {
     for (var i = 1; i <= totalDays; i++) {
         var rSquare = 0;
         var r = 0;
-        for (var j = 1; j < AllActivitys.length - 1; j++) {
+        for (var j = 0; j < AllActivitys.length; j++) {
             if (AllActivitys[j].currentStart < i &&
                 AllActivitys[j].currentFinish >= i) {
                 r += AllActivitys[j].resource;
@@ -381,10 +386,10 @@ function countAvailableFloat() {
 }
 function burgessResourceLeveling() {
     return __awaiter(this, void 0, void 0, function* () {
-        finalBurgessActivities = Object.assign({}, allActivitys);
+        finalBurgessActivities = [...allActivitys];
         for (var l = 0; l < floatActivitys.length; l++) {
-            allActivitysCopy = Object.assign({}, allActivitys);
-            console.log("\n\nTesting number =  " + l + "\n\n");
+            allActivitysCopy = [...allActivitys];
+            // console.log("\n\nTesting number =  " + l + "\n\n");
             for (var k = 0; k < floatActivitys.length; k++) {
                 // console.log("count = ");
                 // console.log(counxtAvailableFloat());
@@ -423,24 +428,25 @@ function burgessResourceLeveling() {
                     originalActivity.currentFinish + position;
                 floatActivitys[latestActivityIndex].currentFinish = -1;
                 //calculatedRsquare = calcucateRSquare();
-                console.log("Rsquare = " + initialRsquare);
-                console.log(allActivitys[originalActivityIndex]);
+                //console.log("Rsquare = " + initialRsquare);
+                // console.log(allActivitys[originalActivityIndex]);
                 if (initialRsquare > totalRsquare) {
                     allActivitys = allActivitysCopy;
                 }
                 else {
                     totalRsquare = initialRsquare;
-                    finalBurgessActivities = Object.assign({}, allActivitys);
+                    //finalBurgessActivities = [ ...allActivitys ];
                 }
             }
-            // if (calcucateRSquare() < totalRsquare) {
-            //     totalRsquare = calcucateRSquare();
-            // }
+            if (calcucateRSquare() < totalRsquare) {
+                totalRsquare = calcucateRSquare();
+                finalBurgessActivities = [...allActivitys];
+            }
             floatActivitys = [];
             yield findFloatActivities();
         }
-        console.log("totalRsquare = " + totalRsquare);
-        console.log(finalBurgessActivities);
+        //console.log("totalRsquare = " + totalRsquare);
+        //console.log(finalBurgessActivities);
     });
 }
 var initialRsquare = Infinity;
@@ -647,20 +653,32 @@ function estimatedResourceLeveling3(latestActivity, array, floatSpace) {
     });
 }
 function checkIfValidActivity(AldlActivitys) {
-    addRelationToMatrixParameterVersion(AldlActivitys);
+    //addRelationToMatrixParameterVersion(AldlActivitys);
     for (var i = 0; i < AldlActivitys.length; i++) {
-        for (var j = 0; j < AldlActivitys.length; j++) {
-            if (relationMatrix[i][j] == 1) {
-                if (AldlActivitys[i].currentFinish >
-                    AldlActivitys[j].currentStart) {
-                    return false;
+        var relations = AldlActivitys[i].nextActivity;
+        for (var j = 0; j < relations.length; j++) {
+            for (var k = 0; k < AldlActivitys.length; k++) {
+                if (AldlActivitys[k].name == AldlActivitys[i].nextActivity[j]) {
+                    if (AldlActivitys[i].currentFinish >
+                        AldlActivitys[k].currentStart) {
+                        return false;
+                    }
                 }
             }
         }
+        // for (var j: number = 0; j < AldlActivitys.length; j++) {
+        //     if (relationMatrix[i][j] == 1) {
+        //         if (
+        //             AldlActivitys[i].currentFinish >
+        //             AldlActivitys[j].currentStart
+        //         ) {
+        //             return false;
+        //         }
+        //     }
+        // }
     }
     return true;
 }
-var megaActivies = Array();
 function resultCalculation() {
     return __awaiter(this, void 0, void 0, function* () {
         // for (var i: number = 0; i < 10; i++) {
@@ -741,6 +759,32 @@ function estimatedResourceLeveling4() {
         //console.log(megaActivies);
     });
 }
+function estimatedResourceLeveling5() {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield findFloatActivities();
+        megaActivies.push(Object.assign({}, allActivitys));
+        //var newOriginalActivities = { ...allActivitys };
+        for (var k = 0; k < floatActivitys.length; k++) {
+            var latestActivityIndex = findLatestActivity();
+            var latestActivity = Object.assign({}, floatActivitys[latestActivityIndex]);
+            floatActivitys[latestActivityIndex].currentFinish = -1000;
+            var activityArray = Array();
+            var originalActivityIndex = stringToNumberConverter(latestActivity.name);
+            for (var i = 0; i < megaActivies.length; i++) {
+                var tempActivityArray = Object.assign({}, megaActivies[i]);
+                for (var j = 0; j <= latestActivity.totalFloat; j++) {
+                    tempActivityArray[originalActivityIndex].currentStart =
+                        tempActivityArray[originalActivityIndex].earlyStart + j;
+                    tempActivityArray[originalActivityIndex].currentFinish =
+                        tempActivityArray[originalActivityIndex].earlyFinish + j;
+                    if (checkIfValidActivity(tempActivityArray)) {
+                        megaActivies.push(Object.assign({}, tempActivityArray));
+                    }
+                }
+            }
+        }
+    });
+}
 function estimatedResourceLeveling6() {
     return __awaiter(this, void 0, void 0, function* () {
         var onnoNam = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
@@ -774,33 +818,46 @@ function estimatedResourceLeveling6() {
         }
     });
 }
-var combinationArray = Array();
-function estimatedResourceLeveling5() {
+function estimatedResourceLeveling7() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield findFloatActivities();
-        megaActivies.push(Object.assign({}, allActivitys));
-        //var newOriginalActivities = { ...allActivitys };
-        for (var k = 0; k < floatActivitys.length; k++) {
-            var latestActivityIndex = findLatestActivity();
-            var latestActivity = Object.assign({}, floatActivitys[latestActivityIndex]);
-            floatActivitys[latestActivityIndex].currentFinish = -1000;
-            var activityArray = Array();
-            var originalActivityIndex = stringToNumberConverter(latestActivity.name);
-            for (var i = 0; i < megaActivies.length; i++) {
-                var tempActivityArray = Object.assign({}, megaActivies[i]);
-                for (var j = 0; j <= latestActivity.totalFloat; j++) {
-                    tempActivityArray[originalActivityIndex].currentStart =
-                        tempActivityArray[originalActivityIndex].earlyStart + j;
-                    tempActivityArray[originalActivityIndex].currentFinish =
-                        tempActivityArray[originalActivityIndex].earlyFinish + j;
-                    if (checkIfValidActivity(tempActivityArray)) {
-                        megaActivies.push(Object.assign({}, tempActivityArray));
+        var onnoNam = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
+        for (var i = 0; i < onnoNam.length; i++) {
+            if (onnoNam[i].lateFinish == Infinity) {
+                continue;
+            }
+            var arr = megaActivies.length ? [...megaActivies] : [];
+            for (var j = 0; j <= onnoNam[i].totalFloat; j++) {
+                var temp = Object.assign({}, onnoNam[i]);
+                temp.currentStart = temp.earlyStart + j;
+                temp.currentFinish = temp.earlyFinish + j;
+                for (var k = 0; k < megaActivies.length; k++) {
+                    var copycopy = megaActivies[k].length
+                        ? [...megaActivies[k]]
+                        : [];
+                    copycopy.push(temp);
+                    if (checkIfValidActivity(copycopy)) {
+                        break;
                     }
+                    var calculatedRsquare = calcucateRSquareParameterVersion(copycopy);
+                    if (calculatedRsquare < initialRsquare) {
+                        initialRsquare = calculatedRsquare;
+                        console.log("totalRsquare = " + initialRsquare);
+                        finalEstimatedActivities = [...copycopy];
+                    }
+                    arr.push(copycopy);
+                    // arr.splice(k); //Vejall
+                    arr = arr.filter((a) => a !== megaActivies[k]);
+                }
+                if (!arr.length) {
+                    arr.push([temp]);
                 }
             }
+            console.log(megaActivies.length + "  " + onnoNam[i].name);
+            megaActivies = arr;
         }
     });
 }
+var combinationArray = Array();
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield processInputLineByLine();
@@ -815,13 +872,16 @@ function main() {
         totalRsquare = calcucateRSquare();
         //console.log(totalRsquare);
         yield findFloatActivities();
+        // console.log(floatActivitys);
         originalAllActivitys = [...allActivitys];
-        //console.log(floatActivitys);
-        // await burgessResourceLeveling();
+        yield burgessResourceLeveling();
+        console.log(finalBurgessActivities
+            .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
+            .join("->"));
+        console.log("Final Rsquare for burgess = " + totalRsquare);
+        initialRsquare = Infinity;
         allActivitys = [...originalAllActivitys];
-        var latestActivityIndex = findLatestActivity();
-        var latestActivity = floatActivitys[latestActivityIndex];
-        for (var i = 0; i <= floatActivitys.length; i++) { }
+        // var latestActivityIndex: number = findLatestActivity();
         // await estimatedResourceLeveling2(
         //     allActivitys[activityCount - 2],
         //     megaActivies,
@@ -829,13 +889,14 @@ function main() {
         // );
         // await resultCalculation();
         //await estimatedResourceLeveling4();
-        yield estimatedResourceLeveling6();
-        yield resultCalculation();
+        // await estimatedResourceLeveling6();
+        // await resultCalculation();
+        yield estimatedResourceLeveling7();
         console.log(finalEstimatedActivities
             .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
             .join("->"));
-        console.log(finalEstimatedActivities);
-        console.log("Final Rsquare = " + initialRsquare);
+        //console.log(finalEstimatedActivities);
+        console.log("Final Rsquare for emtimated brute force = " + initialRsquare);
     });
 }
 main();

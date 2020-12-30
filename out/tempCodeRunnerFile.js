@@ -1,3 +1,3 @@
 "use strict";
-console.log(onnoNam.map((a) => `${a.name}_${a.lateFinish}`).join("->"));
+calculatedRsquare;
 //# sourceMappingURL=tempCodeRunnerFile.js.map

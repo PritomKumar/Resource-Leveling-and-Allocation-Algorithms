@@ -3,6 +3,7 @@ import fs from "fs";
 import { isFunctionDeclaration, updateBreak } from "typescript";
 
 const readline = require("readline");
+var megaActivies = Array<Array<Activity>>();
 var allActivitys = new Array<Activity>();
 var originalAllActivitys = new Array<Activity>();
 var allActivitysCopy = new Array<Activity>();
@@ -404,7 +405,7 @@ async function burgessResourceLeveling() {
     finalBurgessActivities = [ ...allActivitys ];
     for (var l: number = 0; l < floatActivitys.length; l++) {
         allActivitysCopy = [ ...allActivitys ];
-        console.log("\n\nTesting number =  " + l + "\n\n");
+       // console.log("\n\nTesting number =  " + l + "\n\n");
         for (var k: number = 0; k < floatActivitys.length; k++) {
             // console.log("count = ");
             // console.log(counxtAvailableFloat());
@@ -455,12 +456,13 @@ async function burgessResourceLeveling() {
                 allActivitys = allActivitysCopy;
             } else {
                 totalRsquare = initialRsquare;
-                finalBurgessActivities = [ ...allActivitys ];
+                //finalBurgessActivities = [ ...allActivitys ];
             }
         }
-        // if (calcucateRSquare() < totalRsquare) {
-        //     totalRsquare = calcucateRSquare();
-        // }
+        if (calcucateRSquare() < totalRsquare) {
+            totalRsquare = calcucateRSquare();
+            finalBurgessActivities = [ ...allActivitys ];
+        }
         floatActivitys = [];
         await findFloatActivities();
     }
@@ -774,7 +776,7 @@ function checkIfValidActivity(AldlActivitys: Array<Activity>): boolean {
 
     return true;
 }
-var megaActivies = Array<Array<Activity>>();
+
 
 async function resultCalculation() {
     // for (var i: number = 0; i < 10; i++) {
@@ -862,6 +864,34 @@ async function estimatedResourceLeveling4() {
     //console.log(megaActivies);
 }
 
+async function estimatedResourceLeveling5() {
+    await findFloatActivities();
+    megaActivies.push({ ...allActivitys });
+    //var newOriginalActivities = { ...allActivitys };
+    for (var k: number = 0; k < floatActivitys.length; k++) {
+        var latestActivityIndex: number = findLatestActivity();
+        var latestActivity = { ...floatActivitys[latestActivityIndex] };
+        floatActivitys[latestActivityIndex].currentFinish = -1000;
+        var activityArray = Array<Array<Activity>>();
+        var originalActivityIndex: number = stringToNumberConverter(
+            latestActivity.name
+        );
+
+        for (var i: number = 0; i < megaActivies.length; i++) {
+            var tempActivityArray = { ...megaActivies[i] };
+            for (var j: number = 0; j <= latestActivity.totalFloat; j++) {
+                tempActivityArray[originalActivityIndex].currentStart =
+                    tempActivityArray[originalActivityIndex].earlyStart + j;
+                tempActivityArray[originalActivityIndex].currentFinish =
+                    tempActivityArray[originalActivityIndex].earlyFinish + j;
+                if (checkIfValidActivity(tempActivityArray)) {
+                    megaActivies.push({ ...tempActivityArray });
+                }
+            }
+        }
+    }
+}
+
 async function estimatedResourceLeveling6() {
     var onnoNam = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
     for (var i: number = 0; i < onnoNam.length; i++) {
@@ -942,33 +972,6 @@ async function estimatedResourceLeveling7() {
 
 var combinationArray = Array<Array<number>>();
 
-async function estimatedResourceLeveling5() {
-    await findFloatActivities();
-    megaActivies.push({ ...allActivitys });
-    //var newOriginalActivities = { ...allActivitys };
-    for (var k: number = 0; k < floatActivitys.length; k++) {
-        var latestActivityIndex: number = findLatestActivity();
-        var latestActivity = { ...floatActivitys[latestActivityIndex] };
-        floatActivitys[latestActivityIndex].currentFinish = -1000;
-        var activityArray = Array<Array<Activity>>();
-        var originalActivityIndex: number = stringToNumberConverter(
-            latestActivity.name
-        );
-
-        for (var i: number = 0; i < megaActivies.length; i++) {
-            var tempActivityArray = { ...megaActivies[i] };
-            for (var j: number = 0; j <= latestActivity.totalFloat; j++) {
-                tempActivityArray[originalActivityIndex].currentStart =
-                    tempActivityArray[originalActivityIndex].earlyStart + j;
-                tempActivityArray[originalActivityIndex].currentFinish =
-                    tempActivityArray[originalActivityIndex].earlyFinish + j;
-                if (checkIfValidActivity(tempActivityArray)) {
-                    megaActivies.push({ ...tempActivityArray });
-                }
-            }
-        }
-    }
-}
 async function main() {
     await processInputLineByLine();
     initializeRelationMatrix();
@@ -982,8 +985,8 @@ async function main() {
     totalRsquare = calcucateRSquare();
     //console.log(totalRsquare);
     await findFloatActivities();
+    // console.log(floatActivitys);
     originalAllActivitys = [...allActivitys];
-    //console.log(floatActivitys);
     await burgessResourceLeveling();
     console.log(
         finalBurgessActivities
@@ -991,8 +994,9 @@ async function main() {
             .join("->")
     );
     console.log("Final Rsquare for burgess = " + totalRsquare);
+    initialRsquare = Infinity;
     allActivitys = [...originalAllActivitys];
-    
+
     // var latestActivityIndex: number = findLatestActivity();
     // await estimatedResourceLeveling2(
     //     allActivitys[activityCount - 2],
