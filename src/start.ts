@@ -437,7 +437,7 @@ async function burgessResourceLeveling() {
                 allActivitys[originalActivityIndex].currentFinish =
                     originalActivity.currentFinish + i + 1;
                 calculatedRsquare = calcucateRSquare();
-                console.log(calculatedRsquare);
+                // console.log(calculatedRsquare);
                 if (calculatedRsquare < initialRsquare) {
                     initialRsquare = calculatedRsquare;
                     position = i + 1;
@@ -986,13 +986,13 @@ async function main() {
     await findFloatActivities();
     // console.log(floatActivitys);
     originalAllActivitys = [...allActivitys];
-    // await burgessResourceLeveling();
-    // console.log(
-    //     finalBurgessActivities
-    //         .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
-    //         .join("->")
-    // );
-    // console.log("Final Rsquare for burgess = " + totalRsquare);
+    await burgessResourceLeveling();
+    console.log(
+        finalBurgessActivities
+            .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
+            .join("->")
+    );
+    console.log("Final Rsquare for burgess = " + totalRsquare);
     initialRsquare = Infinity;
     allActivitys = [...originalAllActivitys];
 
@@ -1004,9 +1004,9 @@ async function main() {
     // );
     // await resultCalculation();
     //await estimatedResourceLeveling4();
-    // await estimatedResourceLeveling6();
-    // await resultCalculation();
-    await estimatedResourceLeveling7();
+    await estimatedResourceLeveling6();
+    await resultCalculation();
+    // await estimatedResourceLeveling7();
     console.log(
         finalEstimatedActivities
             .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
