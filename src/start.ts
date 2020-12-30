@@ -176,13 +176,16 @@ function addRelationToMatrix() {
     }
 }
 
-
-function addRelationToMatrixParameterVersion(copycopy:Activity[]) {
-    for (var i: number = 0; i < activityCount; i++) {
+function addRelationToMatrixParameterVersion(copycopy: Activity[]) {
+    for (var i: number = 0; i < copycopy.length; i++) {
         var relations = copycopy[i].nextActivity;
         for (var j: number = 0; j < relations.length; j++) {
-            relationMatrix[i][stringToNumberConverter(relations[j])] = 1;
-            relationMatrix[stringToNumberConverter(relations[j])][i] = 2;
+            for (var k: number = 0; k < copycopy.length; k++) {
+                if (copycopy[k].name == copycopy[i].nextActivity[j]) {
+                    relationMatrix[i][k] = 1;
+                    relationMatrix[k][i] = 2;
+                }
+            }
         }
     }
 }
@@ -279,7 +282,7 @@ function calcucateRSquareParameterVersion(
     for (var i: number = 1; i <= totalDays; i++) {
         var rSquare: number = 0;
         var r: number = 0;
-        for (var j: number = 1; j < activityCount - 1; j++) {
+        for (var j: number = 0; j < AllActivitys.length ; j++) {
             if (
                 AllActivitys[j].currentStart < i &&
                 AllActivitys[j].currentFinish >= i
@@ -742,18 +745,31 @@ async function estimatedResourceLeveling3(
 }
 
 function checkIfValidActivity(AldlActivitys: Array<Activity>): boolean {
-    addRelationToMatrixParameterVersion(AldlActivitys);
-    for (var i: number = 1; i < activityCount - 1; i++) {
-        for (var j: number = 1; j < activityCount - 1; j++) {
-            if (relationMatrix[i][j] == 1) {
-                if (
-                    AldlActivitys[i].currentFinish >
-                    AldlActivitys[j].currentStart
-                ) {
-                    return false;
+    //addRelationToMatrixParameterVersion(AldlActivitys);
+    for (var i: number = 0; i < AldlActivitys.length; i++) {
+        var relations = AldlActivitys[i].nextActivity;
+        for (var j: number = 0; j < relations.length; j++) {
+            for (var k: number = 0; k < AldlActivitys.length; k++) {
+                if (AldlActivitys[k].name == AldlActivitys[i].nextActivity[j]) {
+                    if (
+                        AldlActivitys[i].currentFinish >
+                        AldlActivitys[k].currentStart
+                    ) {
+                        return false;
+                    }
                 }
             }
         }
+        // for (var j: number = 0; j < AldlActivitys.length; j++) {
+        //     if (relationMatrix[i][j] == 1) {
+        //         if (
+        //             AldlActivitys[i].currentFinish >
+        //             AldlActivitys[j].currentStart
+        //         ) {
+        //             return false;
+        //         }
+        //     }
+        // }
     }
 
     return true;
@@ -776,7 +792,7 @@ async function resultCalculation() {
     //         megaActivies[i].map((a) => `${a.name}_${a.currentStart}`).join("->")
     //     );
     // }
-    
+
     for (var i: number = 0; i < megaActivies.length; i++) {
         if (!checkIfValidActivity(megaActivies[i])) {
             continue;
@@ -857,15 +873,50 @@ async function estimatedResourceLeveling6() {
             var temp = { ...onnoNam[i] };
             temp.currentStart = temp.earlyStart + j;
             temp.currentFinish = temp.earlyFinish + j;
-            
+
             for (var k = 0; k < megaActivies.length; k++) {
                 var copycopy = megaActivies[k].length
                     ? [...megaActivies[k]]
                     : [];
                 copycopy.push(temp);
-                if(checkIfValidActivity(copycopy)){
-break;
-                };
+                // if (checkIfValidActivity(copycopy)) {
+                //     break;
+                // }
+                arr.push(copycopy);
+
+                // arr.splice(k); //Vejall
+
+                arr = arr.filter((a) => a !== megaActivies[k]);
+            }
+            if (!arr.length) {
+                arr.push([temp]);
+            }
+        }
+        console.log(megaActivies.length + "  " + onnoNam[i].name);
+        megaActivies = arr;
+    }
+}
+
+async function estimatedResourceLeveling7() {
+    var onnoNam = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
+    for (var i: number = 0; i < onnoNam.length; i++) {
+        if (onnoNam[i].lateFinish == Infinity) {
+            continue;
+        }
+        var arr = megaActivies.length ? [...megaActivies] : [];
+        for (var j = 0; j <= onnoNam[i].totalFloat; j++) {
+            var temp = { ...onnoNam[i] };
+            temp.currentStart = temp.earlyStart + j;
+            temp.currentFinish = temp.earlyFinish + j;
+
+            for (var k = 0; k < megaActivies.length; k++) {
+                var copycopy = megaActivies[k].length
+                    ? [...megaActivies[k]]
+                    : [];
+                copycopy.push(temp);
+                // if (checkIfValidActivity(copycopy)) {
+                //     break;
+                // }
                 arr.push(copycopy);
 
                 // arr.splice(k); //Vejall
@@ -925,12 +976,16 @@ async function main() {
     await findFloatActivities();
     originalAllActivitys = [...allActivitys];
     //console.log(floatActivitys);
-    // await burgessResourceLeveling();
+    await burgessResourceLeveling();
+    console.log(
+        finalBurgessActivities
+            .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
+            .join("->")
+    );
+    console.log("Final Rsquare for burgess = " + totalRsquare);
     allActivitys = [...originalAllActivitys];
     var latestActivityIndex: number = findLatestActivity();
-    var latestActivity = floatActivitys[latestActivityIndex];
 
-    for (var i: number = 0; i <= floatActivitys.length; i++) {}
     // await estimatedResourceLeveling2(
     //     allActivitys[activityCount - 2],
     //     megaActivies,
@@ -942,10 +997,11 @@ async function main() {
     await resultCalculation();
     console.log(
         finalEstimatedActivities
-            .map((a) => `${a.name}_${a.currentStart}`)
+            .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
             .join("->")
     );
-    console.log("Final Rsquare = " + initialRsquare);
+    //console.log(finalEstimatedActivities);
+    console.log("Final Rsquare for emtimated brute force = " + initialRsquare);
 }
 
 main();

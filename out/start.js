@@ -187,7 +187,7 @@ function addRelationToMatrix() {
     }
 }
 function addRelationToMatrixParameterVersion(copycopy) {
-    for (var i = 0; i < activityCount; i++) {
+    for (var i = 0; i < copycopy.length; i++) {
         var relations = copycopy[i].nextActivity;
         for (var j = 0; j < relations.length; j++) {
             relationMatrix[i][stringToNumberConverter(relations[j])] = 1;
@@ -280,7 +280,7 @@ function calcucateRSquareParameterVersion(AllActivitys) {
     for (var i = 1; i <= totalDays; i++) {
         var rSquare = 0;
         var r = 0;
-        for (var j = 1; j < activityCount - 1; j++) {
+        for (var j = 1; j < AllActivitys.length - 1; j++) {
             if (AllActivitys[j].currentStart < i &&
                 AllActivitys[j].currentFinish >= i) {
                 r += AllActivitys[j].resource;
@@ -648,8 +648,8 @@ function estimatedResourceLeveling3(latestActivity, array, floatSpace) {
 }
 function checkIfValidActivity(AldlActivitys) {
     addRelationToMatrixParameterVersion(AldlActivitys);
-    for (var i = 1; i < activityCount - 1; i++) {
-        for (var j = 1; j < activityCount - 1; j++) {
+    for (var i = 0; i < AldlActivitys.length; i++) {
+        for (var j = 0; j < AldlActivitys.length; j++) {
             if (relationMatrix[i][j] == 1) {
                 if (AldlActivitys[i].currentFinish >
                     AldlActivitys[j].currentStart) {
@@ -758,10 +758,9 @@ function estimatedResourceLeveling6() {
                         ? [...megaActivies[k]]
                         : [];
                     copycopy.push(temp);
-                    if (checkIfValidActivity(copycopy)) {
-                        break;
-                    }
-                    ;
+                    // if (checkIfValidActivity(copycopy)) {
+                    //     break;
+                    // }
                     arr.push(copycopy);
                     // arr.splice(k); //Vejall
                     arr = arr.filter((a) => a !== megaActivies[k]);
@@ -833,8 +832,9 @@ function main() {
         yield estimatedResourceLeveling6();
         yield resultCalculation();
         console.log(finalEstimatedActivities
-            .map((a) => `${a.name}_${a.currentStart}`)
+            .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
             .join("->"));
+        console.log(finalEstimatedActivities);
         console.log("Final Rsquare = " + initialRsquare);
     });
 }
