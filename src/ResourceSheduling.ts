@@ -417,24 +417,24 @@ async function resultCalculation() {
 }
 
 async function estimatedResourceLeveling() {
-    var onnoNam = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
-    for (var i: number = 0; i < onnoNam.length; i++) {
-        if (onnoNam[i].lateFinish == Infinity || onnoNam[i].name == "END") {
+    var activityArray = allActivitys.sort((a, b) => a.lateFinish - b.lateFinish);
+    for (var i: number = 0; i < activityArray.length; i++) {
+        if (activityArray[i].lateFinish == Infinity || activityArray[i].name == "END") {
             continue;
         }
         var arr = megaActivies.length ? [...megaActivies] : [];
-        for (var j = 0; j <= onnoNam[i].totalFloat; j++) {
-            var temp = { ...onnoNam[i] };
+        for (var j = 0; j <= activityArray[i].totalFloat; j++) {
+            var temp = { ...activityArray[i] };
             temp.currentStart = temp.earlyStart + j;
             temp.currentFinish = temp.earlyFinish + j;
 
             for (var k = 0; k < megaActivies.length; k++) {
-                var copycopy = megaActivies[k].length
+                var activityArrayCopy = megaActivies[k].length
                     ? [...megaActivies[k]]
                     : [];
-                copycopy.push(temp);
-                arr.push(copycopy);
-                arr = arr.filter((a) => a !== megaActivies[k]);
+                activityArrayCopy.push(temp);
+                arr.push(activityArrayCopy);
+                arr = arr.filter((a) => a !== megaActivies[k]);//Remove Activity
             }
             if (!arr.length) {
                 arr.push([temp]);
