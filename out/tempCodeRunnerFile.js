@@ -1,3 +1,5 @@
 "use strict";
-calculatedRsquare;
+// if (!checkIfValidActivity(copycopy)) {
+//     continue;
+// }
 //# sourceMappingURL=tempCodeRunnerFile.js.map

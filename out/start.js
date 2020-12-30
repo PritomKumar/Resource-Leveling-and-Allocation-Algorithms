@@ -44,6 +44,7 @@ var relationMatrix = [[]];
 var activityCount = 0;
 var totalDays = 0;
 var totalRsquare = 0;
+var initialRsquare = Infinity;
 class Activity {
     constructor(name = "", duration = 0, resource = 0, nextActivity = ["END"]) {
         this.name = "";
@@ -449,7 +450,6 @@ function burgessResourceLeveling() {
         //console.log(finalBurgessActivities);
     });
 }
-var initialRsquare = Infinity;
 function estimatedResourceLeveling1() {
     return __awaiter(this, void 0, void 0, function* () {
         var calculatedRsquare = 0;
@@ -835,13 +835,14 @@ function estimatedResourceLeveling7() {
                         ? [...megaActivies[k]]
                         : [];
                     copycopy.push(temp);
-                    if (checkIfValidActivity(copycopy)) {
+                    if (!checkIfValidActivity(copycopy)) {
                         break;
                     }
                     var calculatedRsquare = calcucateRSquareParameterVersion(copycopy);
                     if (calculatedRsquare < initialRsquare) {
                         initialRsquare = calculatedRsquare;
                         console.log("totalRsquare = " + initialRsquare);
+                        console.log("length = " + copycopy.length);
                         finalEstimatedActivities = [...copycopy];
                     }
                     arr.push(copycopy);
@@ -874,11 +875,13 @@ function main() {
         yield findFloatActivities();
         // console.log(floatActivitys);
         originalAllActivitys = [...allActivitys];
-        yield burgessResourceLeveling();
-        console.log(finalBurgessActivities
-            .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
-            .join("->"));
-        console.log("Final Rsquare for burgess = " + totalRsquare);
+        // await burgessResourceLeveling();
+        // console.log(
+        //     finalBurgessActivities
+        //         .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
+        //         .join("->")
+        // );
+        // console.log("Final Rsquare for burgess = " + totalRsquare);
         initialRsquare = Infinity;
         allActivitys = [...originalAllActivitys];
         // var latestActivityIndex: number = findLatestActivity();

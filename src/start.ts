@@ -27,6 +27,7 @@ var relationMatrix: Array<Array<number>> = [[]];
 var activityCount: number = 0;
 var totalDays: number = 0;
 var totalRsquare: number = 0;
+var initialRsquare: number = Infinity;
 
 class Activity {
     name: string = "";
@@ -283,7 +284,7 @@ function calcucateRSquareParameterVersion(
     for (var i: number = 1; i <= totalDays; i++) {
         var rSquare: number = 0;
         var r: number = 0;
-        for (var j: number = 0; j < AllActivitys.length ; j++) {
+        for (var j: number = 0; j < AllActivitys.length; j++) {
             if (
                 AllActivitys[j].currentStart < i &&
                 AllActivitys[j].currentFinish >= i
@@ -402,10 +403,10 @@ function countAvailableFloat(): number {
 }
 
 async function burgessResourceLeveling() {
-    finalBurgessActivities = [ ...allActivitys ];
+    finalBurgessActivities = [...allActivitys];
     for (var l: number = 0; l < floatActivitys.length; l++) {
-        allActivitysCopy = [ ...allActivitys ];
-       // console.log("\n\nTesting number =  " + l + "\n\n");
+        allActivitysCopy = [...allActivitys];
+        // console.log("\n\nTesting number =  " + l + "\n\n");
         for (var k: number = 0; k < floatActivitys.length; k++) {
             // console.log("count = ");
             // console.log(counxtAvailableFloat());
@@ -451,7 +452,7 @@ async function burgessResourceLeveling() {
             floatActivitys[latestActivityIndex].currentFinish = -1;
             //calculatedRsquare = calcucateRSquare();
             //console.log("Rsquare = " + initialRsquare);
-           // console.log(allActivitys[originalActivityIndex]);
+            // console.log(allActivitys[originalActivityIndex]);
             if (initialRsquare > totalRsquare) {
                 allActivitys = allActivitysCopy;
             } else {
@@ -461,7 +462,7 @@ async function burgessResourceLeveling() {
         }
         if (calcucateRSquare() < totalRsquare) {
             totalRsquare = calcucateRSquare();
-            finalBurgessActivities = [ ...allActivitys ];
+            finalBurgessActivities = [...allActivitys];
         }
         floatActivitys = [];
         await findFloatActivities();
@@ -469,8 +470,6 @@ async function burgessResourceLeveling() {
     //console.log("totalRsquare = " + totalRsquare);
     //console.log(finalBurgessActivities);
 }
-
-var initialRsquare: number = Infinity;
 
 async function estimatedResourceLeveling1() {
     var calculatedRsquare: number = 0;
@@ -777,7 +776,6 @@ function checkIfValidActivity(AldlActivitys: Array<Activity>): boolean {
     return true;
 }
 
-
 async function resultCalculation() {
     // for (var i: number = 0; i < 10; i++) {
     //     console.log(
@@ -944,7 +942,7 @@ async function estimatedResourceLeveling7() {
                     ? [...megaActivies[k]]
                     : [];
                 copycopy.push(temp);
-                if (checkIfValidActivity(copycopy)) {
+                if (!checkIfValidActivity(copycopy) ) {
                     break;
                 }
                 var calculatedRsquare = calcucateRSquareParameterVersion(
@@ -953,6 +951,7 @@ async function estimatedResourceLeveling7() {
                 if (calculatedRsquare < initialRsquare) {
                     initialRsquare = calculatedRsquare;
                     console.log("totalRsquare = " + initialRsquare);
+                    console.log("length = " +  copycopy.length);
                     finalEstimatedActivities = [...copycopy];
                 }
                 arr.push(copycopy);
@@ -987,13 +986,13 @@ async function main() {
     await findFloatActivities();
     // console.log(floatActivitys);
     originalAllActivitys = [...allActivitys];
-    await burgessResourceLeveling();
-    console.log(
-        finalBurgessActivities
-            .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
-            .join("->")
-    );
-    console.log("Final Rsquare for burgess = " + totalRsquare);
+    // await burgessResourceLeveling();
+    // console.log(
+    //     finalBurgessActivities
+    //         .map((a) => `${a.name}_${a.currentStart}_${a.currentFinish}`)
+    //         .join("->")
+    // );
+    // console.log("Final Rsquare for burgess = " + totalRsquare);
     initialRsquare = Infinity;
     allActivitys = [...originalAllActivitys];
 
